@@ -4,37 +4,19 @@ import java.util.Date;
 
 public class ApiClient {
 	
-	private Boolean IsActive; //:true,
-	private Date CreatedAt; //:"2016-05-09T11:44:16Z",
-	private String Runlevel; //:"Normal",
-	private String ACL; //""
-	private Integer QuarantineValue; //:0
-	private String Name; //:"BP2S"
+	private Boolean IsActive;
+	private Date CreatedAt;
+	private String Runlevel;
+	private String ACL;
+	private Integer QuarantineValue;
+	private String Name;
 	private String APIKey;//:"9743186126e0d3616148a0a46240aec7"
 	private String SecretKey; //:"27c7cf02e143502978d634cf9be59889"
-	private String UserID; //:393783,
-	private Boolean IsMaster; //:false,
-	private String ID; //:422434,
-	private Integer Skipspamd; //:1,
-	private String TrackHost; //:"t22p.mjt.lu"
-
-	
-	public ApiClient(Boolean isActive, Date createdAt, String runLevel, String acl, Integer quarantineValue, String name, String apiKey, String secretKey, String userID, Boolean isMaster, String id, Integer skipSpamd, String trackHost)
-	{
-		this.IsActive = isActive;
-		this.CreatedAt = createdAt;
-		this.Runlevel = runLevel;
-		this.ACL = acl;
-		this.QuarantineValue = quarantineValue;
-		this. Name = name;
-		this. APIKey = apiKey;
-		this.SecretKey = secretKey;
-		this.UserID = userID;
-		this.IsMaster = isMaster;
-		this.ID = id;
-		this.Skipspamd = skipSpamd;
-		this.TrackHost = trackHost;
-	}
+	private String UserID;
+	private Boolean IsMaster;
+	private String ID;
+	private Integer Skipspamd;
+	private String TrackHost;
 	
 	public Boolean getActive() {
 		return IsActive;

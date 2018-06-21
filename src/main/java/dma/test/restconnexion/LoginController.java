@@ -32,7 +32,16 @@ public class LoginController {
 	public LoginController() {
 		
 	}
-	
+
+	private ApiCampaignStatistic findStatisticFromDate (ApiCampaignStatistic[] statistics, Date date) {
+		for (ApiCampaignStatistic statistic : statistics)
+		{
+			if (statistic.CampaignSendStartAt.compareTo(date) == 0) { /* 0 means it's equal*/
+				return statistic;
+			}
+		}
+		return  null;
+	}
 	/* -------------------------------------------------------------------------------------------------------
 	Tant qu'on ne passe pas par ma connexion ici, on accède pas aux autres requêtes
  */
@@ -40,7 +49,8 @@ public class LoginController {
 	@RequestMapping(value = "/auth/login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(value = HttpStatus.OK)
 	//ici Spring m'instancie ma class InfoConnexionClient pour avoir accès aux attributs clé priv et clé pub
-	public @ResponseBody String login(@RequestBody InfoConnexionClient infoConnexionClient) {
+	public @ResponseBody String login(@RequestBody InfoConnexionClient infoConnexionClient)
+			throws MailjetSocketTimeoutException, MailjetException {
 		/* ici on instancie un mailJetDAO dans le but d'avoir un point d'accès global aux info de connexion */
 		mailJetDAO = new MailJetDAO(infoConnexionClient);
 		ApiClient apiClient = mailJetDAO.getClient();
@@ -80,25 +90,55 @@ public class LoginController {
 			ApiCampaignStatistic statistic = findStatisticFromDate(apiStatistics, campaign.Date);
 
 			if (statistic != null) {
-				// Remplacer par des setters
-				campaign.ProcessedCount = statistic.ProcessedCount;
+				campaign.setProcessedCount(statistic.ProcessedCount);
+				campaign.setDeliveredCount(statistic.DeliveredCount);
 			}
 
 			campaigns.add(campaign);
 		}
-
-
 		return toJson(campaigns);
 	}
 
-	private ApiCampaignStatistic findStatisticFromDate (ApiCampaignStatistic[] statistics, Date date) {
-		for (ApiCampaignStatistic statistic : statistics)
-		{
-			if (statistic.CampaignSendStartAt.compareTo(date) == 0) {
-				return statistic;
-			}
-		}
-
-		return  null;
-	}
+//	@CrossOrigin(origins = "*", allowedHeaders = "*")
+//	@RequestMapping(value = "/NouvellePagePasEncoreDeNom", method = RequestMethod.GET)
+//	@ResponseStatus(value = HttpStatus.OK)
+//	public String listCampaignByMonth() throws MailjetSocketTimeoutException, MailjetException {
+//		if(mailJetDAO == null) {
+//			MyException myException = new MyException();
+//			return myException.badRequest();
+//		}
+//
+//		ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignList();
+//		ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignStatisticList();
+//
+//		ArrayList<Campaign> campaigns = new ArrayList<Campaign>();
+//		for (ApiCampaign apiCampaign : apiCampaigns)
+//		{
+//			Campaign campaign = new Campaign(apiCampaign);
+//			ApiCampaignStatistic statistic = findStatisticFromDate(apiStatistics, campaign.Date);
+//			ApiCampaignStatistic monthStatistic = addProcessedMailFromDate(apiStatistics, campaign.Date);
+//
+//			if (statistic != null) {
+//				campaign.setProcessedCount(statistic.ProcessedCount);
+//				campaign.setDeliveredCount(statistic.DeliveredCount);
+//			}
+//
+//			campaigns.add(campaign);
+//			
+//			if (monthStatistic != null) {
+//				campaign.se
+//			}
+//		}
+//
+//		return toJson(campaigns);
+//	}
+//private ApiCampaignStatistic addProcessedMailFromDate (ApiCampaignStatistic[] statistics, Date date) {
+//	for (ApiCampaignStatistic statistic : statistics)
+//	{
+//		if (statistic.CampaignSendStartAt.compareTo(date) == 0) { /* 0 means it's equal*/
+//			return statistic;
+//		}
+//	}
+//	return  null;
+//}
 }

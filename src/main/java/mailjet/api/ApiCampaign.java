@@ -10,4 +10,6 @@ public class ApiCampaign {
     public String FromEmail;
 
     public Date SendStartAt;
+    
+    public Integer SpamassScore;
 }
