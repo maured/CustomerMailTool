@@ -3,6 +3,8 @@ package mailjet.api;
 import java.util.Date;
 
 public class ApiCampaign {
+    public Date CreatedAt;
+    
     public String CustomValue;
 
     public String Subject;

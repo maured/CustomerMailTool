@@ -10,8 +10,8 @@ public class ApiClient {
 	private String ACL;
 	private Integer QuarantineValue;
 	private String Name;
-	private String APIKey;//:"9743186126e0d3616148a0a46240aec7"
-	private String SecretKey; //:"27c7cf02e143502978d634cf9be59889"
+	private String APIKey;
+	private String SecretKey;
 	private String UserID;
 	private Boolean IsMaster;
 	private String ID;

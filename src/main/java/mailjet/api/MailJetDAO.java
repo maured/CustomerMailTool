@@ -11,7 +11,13 @@ import com.mailjet.client.resource.Apikey;
 import com.mailjet.client.resource.Campaign;
 import com.mailjet.client.resource.Campaignstatistics;
 import dma.test.restconnexion.InfoConnexionClient;
+import mailjet.details.per.date.YearData;
 import org.json.JSONArray;
+
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.Period;
+import java.util.Calendar;
 
 public class MailJetDAO{
 
@@ -22,7 +28,8 @@ public class MailJetDAO{
 	public MailJetDAO(InfoConnexionClient infoConnexionClient) {
 		this.connexion = infoConnexionClient;
 	}
-
+	
+	/*For the connexion */
 	private MailjetClient getAccessToSpecificClient() {
 		String pubKey = this.connexion.getPubKey();
 		String privKey = this.connexion.getPrivKey();
@@ -30,6 +37,7 @@ public class MailJetDAO{
 		return new MailjetClient(pubKey, privKey);
 	}
 
+	/* For the first important informations send (Name & ID of the client)  */
 	public ApiClient getClient() throws MailjetSocketTimeoutException, MailjetException {
 		MailjetClient client = getAccessToSpecificClient();
 		MailjetRequest request = new MailjetRequest(Apikey.resource);
@@ -40,6 +48,20 @@ public class MailJetDAO{
 		ApiClient[] apiClient = new Gson().fromJson(String.valueOf(clientData), ApiClient[].class);
 		
 		return apiClient[0];
+	}
+	
+	/* ---------------------------------------------------------------------------------- /
+	This 2 methods above are used to give the 5 attributes in the /campaign route in my controller. This route is for the first page developed in the webapp */
+	public ApiCampaign[] getCampaignList() throws MailjetSocketTimeoutException, MailjetException {
+		MailjetClient client = getAccessToSpecificClient();
+		MailjetRequest request = new MailjetRequest(Campaign.resource)
+				.filter(Campaign.FROMTS, "2016-01-01T00:00:00")
+				.filter(Campaign.LIMIT, "150");
+		MailjetResponse response = client.get(request);
+
+		JSONArray clientData = response.getData();
+
+		return new Gson().fromJson(String.valueOf((clientData)), ApiCampaign[].class);
 	}
 	
 	public ApiCampaignStatistic[] getCampaignStatisticList() throws MailjetSocketTimeoutException, MailjetException {
@@ -53,56 +75,53 @@ public class MailJetDAO{
 		
 		return new Gson().fromJson(String.valueOf((clientData)), ApiCampaignStatistic[].class);
 	}
-
-	public ApiCampaign[] getCampaignList() throws MailjetSocketTimeoutException, MailjetException {
+	/*--------------------------------------------------------------------------------*/
+	
+	
+	/* --------------------------------------------------------------------------------/
+	The three above methods are for GET call. We have set the filter with the same timestamp for the two Mailjet API calls */
+	public ApiCampaign[] getCampaignSortedByRecentDate() throws MailjetSocketTimeoutException, MailjetException {
 		MailjetClient client = getAccessToSpecificClient();
 		MailjetRequest request = new MailjetRequest(Campaign.resource)
 				.filter(Campaign.FROMTS, "2016-01-01T00:00:00")
+				.filter(Campaign.LIMIT, "400");
+		MailjetResponse response = client.get(request);
+
+		JSONArray clientData = response.getData();
+
+		return new Gson().fromJson(String.valueOf((clientData)), ApiCampaign[].class);
+	}
+	
+	public ApiCampaignStatistic[] getCampaignStatisticListByRecentDate() throws MailjetSocketTimeoutException, MailjetException {
+		MailjetClient client = getAccessToSpecificClient();
+		MailjetRequest request = new MailjetRequest(Campaignstatistics.resource)
+				.filter(Campaignstatistics.FROMTS, "2016-01-01T00:00:00")
+				.filter(Campaignstatistics.LIMIT, "400");
+		MailjetResponse response = client.get(request);
+
+		JSONArray clientData = response.getData();
+
+		return new Gson().fromJson(String.valueOf((clientData)), ApiCampaignStatistic[].class);
+	}
+
+	private String getTimestampDate() {
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		Instant instant = timestamp.toInstant();
+		String myLastDate = instant.toString();
+		return myLastDate;
+	}
+/*--------------------------------------------------------------------------------*/
+
+	/* This methode is for POST call*/
+	public ApiCampaign[] getCampaignSorted(YearData year) throws MailjetSocketTimeoutException, MailjetException {
+		MailjetClient client = getAccessToSpecificClient();
+		MailjetRequest request = new MailjetRequest(Campaign.resource)
+				.filter(Campaign.TOTS, String.valueOf(year)) 
 				.filter(Campaign.LIMIT, "150");
 		MailjetResponse response = client.get(request);
 
 		JSONArray clientData = response.getData();
-		
+
 		return new Gson().fromJson(String.valueOf((clientData)), ApiCampaign[].class);
 	}
 }
-
-
-//	private String request (Resource resource, String filter) {
-//		try {
-//			MailjetClient mailjetClient = getAccessToSpecificClient();
-//
-//			MailjetRequest request = new MailjetRequest(resource);
-//
-//			if (filter != "") {
-//				request.filter(filter, "2018-01-01T00:00:00");
-//			}
-//
-//			MailjetResponse response = mailjetClient.get(request);
-//
-//			JSONArray clientData = response.getData();
-//
-//			return clientData.toString();
-//		} catch (Exception e) {
-//			return null;
-//		}
-//	}
-
-//	public ApiClient getClient() {
-//		String json = request(Apikey.resource, "");
-//		ApiClient[] apiClient = new Gson().fromJson(json, ApiClient[].class);
-//		return apiClient[0];
-//	}
-
-//	public ApiCampaignStatistic[] getCampaignStatisticList() {
-//		String json = request(Campaignstatistics.resource, Campaignstatistics.FROMTS);
-//
-//		return new Gson().fromJson(json, ApiCampaignStatistic[].class);
-//	}
-
-//	public ApiCampaign[] getCampaignList() {
-//		String json = request(Campaign.resource, Campaign.FROMTS);
-//
-//		return new Gson().fromJson(json, ApiCampaign[].class);
-//	}
-

@@ -8,5 +8,5 @@ public class MonthData{
 	public Integer MonthProcessedCount;
 	public Integer Facturation;
 	
-	ArrayList<WeekData> months = new ArrayList<WeekData>();
+	ArrayList<WeekData> months = new ArrayList<>();
 }
