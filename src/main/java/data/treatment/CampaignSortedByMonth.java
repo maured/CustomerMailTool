@@ -9,7 +9,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 public class CampaignSortedByMonth{
-
+	
 	public Hashtable<Integer, List<Campaign>> getMapCampaign(ArrayList<Campaign> campaigns) {
 		
 		int lastYear  = -1;

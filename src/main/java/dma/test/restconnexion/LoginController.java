@@ -11,12 +11,15 @@ import mailjet.api.ApiCampaign;
 import mailjet.api.ApiCampaignStatistic;
 import mailjet.api.ApiClient;
 import mailjet.api.MailJetDAO;
+import mailjet.details.per.date.MonthData;
 import mailjet.details.per.date.YearData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Set;
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -118,6 +121,18 @@ public class LoginController{
 		}
 		CampaignSortedByMonth sortedByMonth = new CampaignSortedByMonth();
 		yearData.setYear(sortedByMonth.getMapCampaign(campaigns));
+		
+		//code de test
+		
+		Set keys = yearData.getYear().keySet();
+		Iterator itr = keys.iterator();
+		ArrayList<MonthData> months = new ArrayList<>();
+		while (itr.hasNext())
+		{
+			//MonthData monthData = new MonthData();
+			months = (ArrayList<MonthData>) itr.next();
+		}
+		//Fin code de test
 		return toJson(yearData);
 	}
 	
