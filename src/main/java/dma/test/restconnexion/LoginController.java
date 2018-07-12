@@ -124,14 +124,15 @@ public class LoginController{
 		
 		//code de test
 		
-		Set keys = yearData.getYear().keySet();
-		Iterator itr = keys.iterator();
-		ArrayList<MonthData> months = new ArrayList<>();
-		while (itr.hasNext())
-		{
-			//MonthData monthData = new MonthData();
-			months = (ArrayList<MonthData>) itr.next();
-		}
+//		Set keys = yearData.getYear().keySet();
+//		Iterator itr = keys.iterator();
+//		ArrayList<MonthData> months = new ArrayList<>();
+//		for (Campaign campaign : campaigns)
+//		{
+//			MonthData monthData = new MonthData(campaign);
+//			monthData.MonthProcessedCount = monthData.calculMailSendByMonth(campaign.ProcessedCount);
+//			months.add(monthData);
+//		}
 		//Fin code de test
 		return toJson(yearData);
 	}
