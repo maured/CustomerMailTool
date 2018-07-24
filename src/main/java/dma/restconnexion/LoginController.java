@@ -1,4 +1,4 @@
-package dma.test.restconnexion;
+package dma.restconnexion;
 
 import com.google.gson.Gson;
 import com.mailjet.client.errors.MailjetException;
@@ -12,28 +12,23 @@ import mailjet.api.ApiCampaign;
 import mailjet.api.ApiCampaignStatistic;
 import mailjet.api.ApiClient;
 import mailjet.api.MailJetDAO;
-import mailjet.details.per.date.ListOfYears;
-import mailjet.details.per.date.MonthData;
 import mailjet.details.per.date.YearData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import sun.reflect.generics.tree.Tree;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
 import java.util.TreeMap;
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class LoginController{
 
-	/*chant que toutes les methodes de l'api Mailjet vont être implémentées dans mailJetDAO, pour chaque nouvelles
-	routes je n'aurais plus qu'à appeler un mailJetDAO.maMethode(). */
+/*tant que toutes les methodes de l'api Mailjet vont être implémentées dans mailJetDAO, pour chaque nouvelles
+	routes je n'aurais plus qu'à appeler un mailJetDAO.maMethode().
+*/
+	
 	// instantiated at null for security 
 	private static MailJetDAO mailJetDAO = null;
 
@@ -51,9 +46,10 @@ public class LoginController{
 		return null;
 	}
 
-	/* ------------------------------------------------------------------------------------------------------/
+/* ------------------------------------------------------------------------------------------------------/
 	While we don't go through this route, we don't have access to another routes/requests.
-	Moreover, this one send back a json with the Name & ID values */
+	Moreover, this one send back a json with the Name & ID values
+*/
 	@CrossOrigin(origins = "*", allowedHeaders = "*")//http://192.068.1.110:3003
 	@RequestMapping(value = "/auth/login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE) @ResponseStatus(value = HttpStatus.OK)
 	//ici Spring m'instancie ma class InfoConnexionClient pour avoir accès aux attributs clé priv et clé pub
@@ -72,10 +68,10 @@ public class LoginController{
 	private String toJson(Object obj) {
 		return new Gson().toJson(obj);
 	}
-	/*------------------------------------------------------------------------------------------------------*/
 	
-	/* ------------------------------------------------------------------------------------------------------/
-		This one send back a json with the name and ID Value */
+/* ------------------------------------------------------------------------------------------------------/
+	This one send back a json with the name and ID Value
+*/
 	@CrossOrigin(origins = "*", allowedHeaders = "*") @RequestMapping(value = "/campaign", method = RequestMethod.GET) @ResponseStatus(value = HttpStatus.OK) public String listCampaign()
 			throws MailjetSocketTimeoutException, MailjetException {
 		if (mailJetDAO == null) {
@@ -102,7 +98,11 @@ public class LoginController{
 
 	// mettre en get / utiliser le tots sur la curretn date
 	// Cvoir le redirect vers du post avec le formatagge de la date renvoyé par kévin
-
+	
+/* ------------------------------------------------------------------------------------------------------/
+	This route is the core of the Sorted Data Page. It send back to the front all data sorted by month and 
+	years.
+*/
 	@CrossOrigin(origins = "*", allowedHeaders = "*")
 	@RequestMapping(value = "/newpage", method = RequestMethod.GET)
 	@ResponseStatus(value = HttpStatus.OK)
@@ -129,14 +129,14 @@ public class LoginController{
 		CampaignSortedByMonth sortedByMonth = new CampaignSortedByMonth();
 		TreeMap<Integer, ArrayList<Campaign>> yearMap;
 		yearMap = sortedByMonth.getMapCampaign(campaigns);
-		
-		CampaignSortedByYear campaignSortedByYear = new CampaignSortedByYear();
-		ArrayList<YearData> myListYears;
-		myListYears = campaignSortedByYear.getMyListYears(yearMap, yearData);
-		
-		return toJson(myListYears);
+
+		return toJson(new CampaignSortedByYear().getMyListYears(yearMap, yearData));
 	}
 	
+/* ------------------------------------------------------------------------------------------------------/
+	This one will be use to pass out the 1000 filter limitation. We will use some post to send back data
+	with the exact date that the user want.
+*/
 	@CrossOrigin(origins = "*", allowedHeaders = "*")
 	@RequestMapping(value = "/newpage", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(value = HttpStatus.OK)

@@ -4,23 +4,17 @@ import com.google.gson.Gson;
 import com.mailjet.client.MailjetClient;
 import com.mailjet.client.MailjetRequest;
 import com.mailjet.client.MailjetResponse;
-import com.mailjet.client.Resource;
 import com.mailjet.client.errors.MailjetException;
 import com.mailjet.client.errors.MailjetSocketTimeoutException;
 import com.mailjet.client.resource.Apikey;
 import com.mailjet.client.resource.Campaign;
 import com.mailjet.client.resource.Campaignstatistics;
-import dma.test.restconnexion.InfoConnexionClient;
+import dma.restconnexion.InfoConnexionClient;
 import mailjet.details.per.date.YearData;
 import org.json.JSONArray;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
-import java.util.Date;
 
 public class MailJetDAO{
 	/*tant que nous avons une instance de mailJet DAO (que la JVM tourne) les infos de connxion seront 

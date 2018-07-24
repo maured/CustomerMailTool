@@ -1,4 +1,4 @@
-package dma.test.restconnexion;
+package dma.restconnexion;
 
 public class InfoConnexionClient{
 	

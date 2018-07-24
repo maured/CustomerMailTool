@@ -14,10 +14,10 @@ public class MonthData{
 	}
 	
 	public Integer totalMailSend;
-	public Integer getMonthProcessedCount() {
+	public Integer getTotalMailSend() {
 		return totalMailSend;
 	}
-	public void setMonthProcessedCount(Integer totalMailSend) {
+	public void setTotalMailSend(Integer totalMailSend) {
 		this.totalMailSend = totalMailSend;
 	}
 
@@ -42,15 +42,5 @@ public class MonthData{
 		{
 			this.totalMailSend = campaign.ProcessedCount;
 		}
-	}
-	
-	public Integer calculMailSendByMonth(Integer campaignProcessedCount)
-	{
-		Integer result = 0;
-		if (campaignProcessedCount != null)
-		{
-			result = result + campaignProcessedCount;
-		}
-		return result;
 	}
 }

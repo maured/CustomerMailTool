@@ -31,13 +31,11 @@ public class CampaignSortedByMonth{
 			/* Parse of createdAt in order to check if there is a difference (in a same Object/Campaign) between the campaign creation date & the campaign sending date.*/
 			Calendar calY = Calendar.getInstance();
 			calY.setTime(camp.CreationDate);
-
-			int daY = calY.get(Calendar.DATE);
+			
 			int monthY = calY.get(Calendar.MONTH) + 1;
-			int yearY = calY.get(Calendar.YEAR);
 
 			/*GESTION d'ERREUR éviter que ça boucle 2 fois sur le même mois pour éviter d'écraser les données d'une année à l'autre*/
-			//else if (annéeEnCour != lastYear && annéeEnCour > lastYear)if we are at the end of a year and we want go to january again
+			//else if (annéeEnCour != lastYear  && annéeEnCour > lastYear)if we are at the end of a year and we want go to january again
 
 			if(month != lastMonth) //if my campagn.SendingDate month is different from my last read month(if it's true), then :
 			{

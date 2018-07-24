@@ -14,16 +14,15 @@ public class CampaignSortedByYear{
 
 	public ArrayList<YearData> getMyListYears(TreeMap<Integer, ArrayList<Campaign>> yearMap, YearData yearData) {
 		MonthData month = new MonthData();
+		GetTotalMailSend getTotalMailSend = new GetTotalMailSend();
 
 		ArrayList<MonthData> myInstancesOfMonths = new ArrayList<>();
 		ArrayList<YearData> myListYears = new ArrayList<>();
 
 		Calendar cal = Calendar.getInstance();
-
 		int lastYear = -1;
 		
-		
-		/* For each sur les objets pour la performance*/
+		/* For each on != object for performance*/
 		for(Map.Entry<Integer, ArrayList<Campaign>> value : yearMap.entrySet()) {
 			ArrayList<Campaign> listCampain = value.getValue();
 
@@ -40,10 +39,8 @@ public class CampaignSortedByYear{
 					{
 						yearData.setDate(lastYear); // I set the previous year in my actual object 
 						yearData.setMonthData(myInstancesOfMonths); // I set the ArrayList of InstanceOfMonth in My YearData-Object
+						getTotalMailSend.calculMailSendByMonth(myInstancesOfMonths); //I use this to compute all MailSend by month in a same year
 						
-						
-						/*--------------------------- A rajouter par la le calcul des ProcessedCount ---------------------------*/
-
 						myListYears.add(yearData); // I make a list of different years found. (Class year declared on top of code)
 
 						yearData = new YearData(); // I clean my YearData object
@@ -65,7 +62,7 @@ public class CampaignSortedByYear{
 					month = new MonthData();
 				}
 			}
-			else//ici qu'on s'occupe du cas où toutes les années sont pareils
+			else
 			{
 				month.setMonthName(monthCal);
 				month.setCampaignList(listCampain); // I set my campaignList in my class MonthData
@@ -77,7 +74,9 @@ public class CampaignSortedByYear{
 			if (value.equals(yearMap.lastEntry()))
 			{
 				yearData.setDate(lastYear); // I set the previous year in my actual object 
-				yearData.setMonthData(myInstancesOfMonths); // i set the ArrayList of InstanceOfMonth in My YearData-Object
+				yearData.setMonthData(myInstancesOfMonths); // I set the ArrayList of InstanceOfMonth in My YearData-Object
+				getTotalMailSend.calculMailSendByMonth(myInstancesOfMonths); //I use this to compute all MailSend by month in a same year
+				
 				myListYears.add(yearData); // I make a list of different years found. (Class year declared on top of code)
 			}
 			lastYear = yearCal;

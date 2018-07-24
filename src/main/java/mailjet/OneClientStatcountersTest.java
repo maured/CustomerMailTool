@@ -9,7 +9,7 @@
 //import com.mailjet.client.resource.Statcounters;
 //
 //public class OneClientStatcountersTest{
-//	
+//
 //	public static void SomeInformations() throws MailjetException, MailjetSocketTimeoutException {
 //		MailjetClient client;
 //		MailjetRequest request;
