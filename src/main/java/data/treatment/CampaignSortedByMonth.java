@@ -2,24 +2,20 @@ package data.treatment;
 
 import mailjet.Campaign;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Hashtable;
-import java.util.List;
+import java.util.HashMap;
+import java.util.TreeMap;
 
 public class CampaignSortedByMonth{
 	
-	public Hashtable<Integer, List<Campaign>> getMapCampaign(ArrayList<Campaign> campaigns) {
+	public TreeMap<Integer, ArrayList<Campaign>> getMapCampaign(ArrayList<Campaign> campaigns) {
 		
-		int lastYear  = -1;
 		int lastMonth = -1;
-		int lastDay   = -1;
-		String formatedDate = "";
 		int month;
 		int i = 0;
 
-		Hashtable<Integer,List<Campaign>> mapCampaign = new Hashtable<>();
+		HashMap<Integer,ArrayList<Campaign>> mapCampaign = new HashMap<>();
 		ArrayList<Campaign> maList  = new ArrayList<>();
 		int campaignSize = campaigns.size();
 
@@ -29,11 +25,8 @@ public class CampaignSortedByMonth{
 
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(camp.SendingDate);
-
-			int day = cal.get(Calendar.DATE);
+			
 			month = cal.get(Calendar.MONTH) + 1;
-			int year = cal.get(Calendar.YEAR);
-			formatedDate = day + "-" + month + "-" + year;
 			
 			/* Parse of createdAt in order to check if there is a difference (in a same Object/Campaign) between the campaign creation date & the campaign sending date.*/
 			Calendar calY = Calendar.getInstance();
@@ -42,8 +35,9 @@ public class CampaignSortedByMonth{
 			int daY = calY.get(Calendar.DATE);
 			int monthY = calY.get(Calendar.MONTH) + 1;
 			int yearY = calY.get(Calendar.YEAR);
-			formatedDate = daY + "-" + monthY + "-" + yearY;
 
+			/*GESTION d'ERREUR éviter que ça boucle 2 fois sur le même mois pour éviter d'écraser les données d'une année à l'autre*/
+			//else if (annéeEnCour != lastYear && annéeEnCour > lastYear)if we are at the end of a year and we want go to january again
 
 			if(month != lastMonth) //if my campagn.SendingDate month is different from my last read month(if it's true), then :
 			{
@@ -89,6 +83,8 @@ public class CampaignSortedByMonth{
 			if(i == campaignSize && lastMonth == month)
 				mapCampaign.put(lastMonth, maList);
 		}
-		return mapCampaign;
+		return new TreeMap<>(mapCampaign);
 	}
+	
+	
 }

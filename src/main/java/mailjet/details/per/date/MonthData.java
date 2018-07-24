@@ -1,53 +1,55 @@
 package mailjet.details.per.date;
 
 import mailjet.Campaign;
-
-import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 
+
 public class MonthData{
-	
-	public Integer MonthProcessedCount;
-	public ArrayList<Campaign> months = new ArrayList<>();
-	public Hashtable<Integer, List<Campaign>> monthTable = new Hashtable<>();
-	
-	public Integer getMonthProcessedCount() {
-		return MonthProcessedCount;
+	public String monthName;
+	public String getMonthName() {
+		return this.monthName;
 	}
-	public void setMonthProcessedCount(Integer monthProcessedCount) {
-		MonthProcessedCount = monthProcessedCount;
+	public void setMonthName(String monthName) {
+		this.monthName = monthName;
+	}
+	
+	public Integer totalMailSend;
+	public Integer getMonthProcessedCount() {
+		return totalMailSend;
+	}
+	public void setMonthProcessedCount(Integer totalMailSend) {
+		this.totalMailSend = totalMailSend;
 	}
 
-	public ArrayList<Campaign> getMonths() {
-		return months;
+
+	public List<Campaign> campaignList;
+	public List<Campaign> getCampaignList() {
+		return this.campaignList;
 	}
-	public void setMonths(ArrayList<Campaign> months) {
-		this.months = months;
+	public void setCampaignList(List<Campaign> campaignList) {
+		this.campaignList = campaignList;
 	}
 	
-	public Hashtable<Integer, List<Campaign>> getMonthTable() {
 	
-		return monthTable;
-	}
-	public void setMonthTable(Hashtable<Integer, List<Campaign>> monthTable) {
-		this.monthTable = monthTable;
+	public MonthData()
+	{
+		
 	}
 	
 	public MonthData(Campaign campaign)
 	{
 		if (campaign != null)
 		{
-			this.MonthProcessedCount = campaign.ProcessedCount;
+			this.totalMailSend = campaign.ProcessedCount;
 		}
 	}
 	
-	public Integer calculMailSendByMonth(Integer monthProcessedCount)
+	public Integer calculMailSendByMonth(Integer campaignProcessedCount)
 	{
 		Integer result = 0;
-		if (monthProcessedCount != null)
+		if (campaignProcessedCount != null)
 		{
-			result = result + monthProcessedCount;
+			result = result + campaignProcessedCount;
 		}
 		return result;
 	}

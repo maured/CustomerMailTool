@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.mailjet.client.errors.MailjetException;
 import com.mailjet.client.errors.MailjetSocketTimeoutException;
 import data.treatment.CampaignSortedByMonth;
+import data.treatment.CampaignSortedByYear;
 import exception.MyException;
 import mailjet.Campaign;
 import mailjet.Client;
@@ -11,15 +12,21 @@ import mailjet.api.ApiCampaign;
 import mailjet.api.ApiCampaignStatistic;
 import mailjet.api.ApiClient;
 import mailjet.api.MailJetDAO;
+import mailjet.details.per.date.ListOfYears;
 import mailjet.details.per.date.MonthData;
 import mailjet.details.per.date.YearData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import sun.reflect.generics.tree.Tree;
+
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -68,7 +75,7 @@ public class LoginController{
 	/*------------------------------------------------------------------------------------------------------*/
 	
 	/* ------------------------------------------------------------------------------------------------------/
-		This one send back a json with the name Value */
+		This one send back a json with the name and ID Value */
 	@CrossOrigin(origins = "*", allowedHeaders = "*") @RequestMapping(value = "/campaign", method = RequestMethod.GET) @ResponseStatus(value = HttpStatus.OK) public String listCampaign()
 			throws MailjetSocketTimeoutException, MailjetException {
 		if (mailJetDAO == null) {
@@ -120,21 +127,14 @@ public class LoginController{
 			campaigns.add(campaign);
 		}
 		CampaignSortedByMonth sortedByMonth = new CampaignSortedByMonth();
-		yearData.setYear(sortedByMonth.getMapCampaign(campaigns));
+		TreeMap<Integer, ArrayList<Campaign>> yearMap;
+		yearMap = sortedByMonth.getMapCampaign(campaigns);
 		
-		//code de test
+		CampaignSortedByYear campaignSortedByYear = new CampaignSortedByYear();
+		ArrayList<YearData> myListYears;
+		myListYears = campaignSortedByYear.getMyListYears(yearMap, yearData);
 		
-//		Set keys = yearData.getYear().keySet();
-//		Iterator itr = keys.iterator();
-//		ArrayList<MonthData> months = new ArrayList<>();
-//		for (Campaign campaign : campaigns)
-//		{
-//			MonthData monthData = new MonthData(campaign);
-//			monthData.MonthProcessedCount = monthData.calculMailSendByMonth(campaign.ProcessedCount);
-//			months.add(monthData);
-//		}
-		//Fin code de test
-		return toJson(yearData);
+		return toJson(myListYears);
 	}
 	
 	@CrossOrigin(origins = "*", allowedHeaders = "*")

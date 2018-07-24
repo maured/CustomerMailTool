@@ -1,0 +1,87 @@
+package data.treatment;
+
+import mailjet.Campaign;
+import mailjet.details.per.date.MonthData;
+import mailjet.details.per.date.YearData;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
+
+public class CampaignSortedByYear{
+
+	public ArrayList<YearData> getMyListYears(TreeMap<Integer, ArrayList<Campaign>> yearMap, YearData yearData) {
+		MonthData month = new MonthData();
+
+		ArrayList<MonthData> myInstancesOfMonths = new ArrayList<>();
+		ArrayList<YearData> myListYears = new ArrayList<>();
+
+		Calendar cal = Calendar.getInstance();
+
+		int lastYear = -1;
+		
+		
+		/* For each sur les objets pour la performance*/
+		for(Map.Entry<Integer, ArrayList<Campaign>> value : yearMap.entrySet()) {
+			ArrayList<Campaign> listCampain = value.getValue();
+
+			cal.setTime(listCampain.get(0).SendingDate);
+
+			String monthCal = (cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()));
+			int yearCal = cal.get(Calendar.YEAR);
+
+			if (yearCal != lastYear)
+			{
+				if (lastYear != -1)
+				{
+					if (yearCal < lastYear)
+					{
+						yearData.setDate(lastYear); // I set the previous year in my actual object 
+						yearData.setMonthData(myInstancesOfMonths); // I set the ArrayList of InstanceOfMonth in My YearData-Object
+						
+						
+						/*--------------------------- A rajouter par la le calcul des ProcessedCount ---------------------------*/
+
+						myListYears.add(yearData); // I make a list of different years found. (Class year declared on top of code)
+
+						yearData = new YearData(); // I clean my YearData object
+						myInstancesOfMonths = new ArrayList<>(); // I clean my ArrayList
+
+						month.setMonthName(monthCal);
+						month.setCampaignList(listCampain); // I set my campaignList in my class MonthData
+						myInstancesOfMonths.add(month); // I add my object MonthData in an ArrayL <MonthData>
+						month = new MonthData(); // I clean my MonthData Object
+					}
+					//Impossible to have a else. In CampaignSortedByMonth class, we could not have more than 12 month. (must be implemented)
+					// It will be impossible to get a next year > than the last one.
+				}
+				else
+				{
+					month.setMonthName(monthCal); // I set the actual month.
+					month.setCampaignList(listCampain); // I set my campaignList in my class MonthData
+					myInstancesOfMonths.add(month); // I add my object MonthData in an ArrayL <MonthData>
+					month = new MonthData();
+				}
+			}
+			else//ici qu'on s'occupe du cas où toutes les années sont pareils
+			{
+				month.setMonthName(monthCal);
+				month.setCampaignList(listCampain); // I set my campaignList in my class MonthData
+				myInstancesOfMonths.add(month); // I add my object MonthData in an ArrayL <MonthData>
+				month = new MonthData(); // I clean my MonthData Object	
+			}
+
+
+			if (value.equals(yearMap.lastEntry()))
+			{
+				yearData.setDate(lastYear); // I set the previous year in my actual object 
+				yearData.setMonthData(myInstancesOfMonths); // i set the ArrayList of InstanceOfMonth in My YearData-Object
+				myListYears.add(yearData); // I make a list of different years found. (Class year declared on top of code)
+			}
+			lastYear = yearCal;
+		}
+		return myListYears;
+	}
+}

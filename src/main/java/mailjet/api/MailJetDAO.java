@@ -15,12 +15,14 @@ import mailjet.details.per.date.YearData;
 import org.json.JSONArray;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import java.util.Date;
 
 public class MailJetDAO{
-
 	/*tant que nous avons une instance de mailJet DAO (que la JVM tourne) les infos de connxion seront 
 	stockées dans mon objet connexion*/
 	private InfoConnexionClient connexion;
@@ -84,7 +86,7 @@ public class MailJetDAO{
 		MailjetClient client = getAccessToSpecificClient();
 		MailjetRequest request = new MailjetRequest(Campaign.resource)
 				.filter(Campaign.FROMTS, "2016-01-01T00:00:00")
-				.filter(Campaign.LIMIT, "400");
+				.filter(Campaign.LIMIT, "0");
 		MailjetResponse response = client.get(request);
 
 		JSONArray clientData = response.getData();
@@ -96,7 +98,7 @@ public class MailJetDAO{
 		MailjetClient client = getAccessToSpecificClient();
 		MailjetRequest request = new MailjetRequest(Campaignstatistics.resource)
 				.filter(Campaignstatistics.FROMTS, "2016-01-01T00:00:00")
-				.filter(Campaignstatistics.LIMIT, "400");
+				.filter(Campaignstatistics.LIMIT, "0");
 		MailjetResponse response = client.get(request);
 
 		JSONArray clientData = response.getData();
@@ -114,6 +116,9 @@ public class MailJetDAO{
 
 	/* This methode is for POST call*/
 	public ApiCampaign[] getCampaignSorted(YearData year) throws MailjetSocketTimeoutException, MailjetException {
+//		Date date = year.getDate();
+//		SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+//		dt.format(date);
 		MailjetClient client = getAccessToSpecificClient();
 		MailjetRequest request = new MailjetRequest(Campaign.resource)
 				.filter(Campaign.TOTS, String.valueOf(year)) 
