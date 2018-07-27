@@ -16,7 +16,6 @@ public class ApiClient {
 	private Boolean IsMaster;
 	private String ID;
 	private Integer Skipspamd;
-	private String TrackHost;
 	
 	public Boolean getActive() {
 		return IsActive;
@@ -102,10 +101,4 @@ public class ApiClient {
 		this.Skipspamd = skipSpamd;
 	}
 
-	public String getTrackHost() {
-		return TrackHost;
-	} 
-	public void setTrackHost(String trackHost) {
-		this.TrackHost = trackHost;
-	}
 }

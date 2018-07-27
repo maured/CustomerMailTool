@@ -2,13 +2,13 @@ package data.treatment;
 
 public class GetDate{
 	
-	public static String dateTime;
+	public static String date;
 
-	public String getDateTime() {
-		return dateTime;
+	public String getDate() {
+		return date;
 	}
 
-	public void setDateTime(String dateTime) {
-		this.dateTime = dateTime;
+	public void setDate(String date) {
+		this.date = date;
 	}
 }

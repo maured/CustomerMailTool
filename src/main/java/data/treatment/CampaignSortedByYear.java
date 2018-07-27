@@ -37,11 +37,11 @@ public class CampaignSortedByYear{
 				{
 					if (yearCal < lastYear)
 					{
-						yearData.setDate(lastYear); // I set the previous year in my actual object 
+						yearData.setDate(lastYear); // I set the previous year in my actual object
 						yearData.setMonthData(myInstancesOfMonths); // I set the ArrayList of InstanceOfMonth in My YearData-Object
 						getTotalMailSend.calculMailSendByMonth(myInstancesOfMonths); //I use this to compute all MailSend by month in a same year
 						
-						myListYears.add(yearData); // I make a list of different years found. (Class year declared on top of code)
+						myListYears.add(yearData); // I make a list of different years found.
 
 						yearData = new YearData(); // I clean my YearData object
 						myInstancesOfMonths = new ArrayList<>(); // I clean my ArrayList
@@ -51,8 +51,9 @@ public class CampaignSortedByYear{
 						myInstancesOfMonths.add(month); // I add my object MonthData in an ArrayL <MonthData>
 						month = new MonthData(); // I clean my MonthData Object
 					}
-					//Impossible to have a else. In CampaignSortedByMonth class, we could not have more than 12 month. (must be implemented)
-					// It will be impossible to get a next year > than the last one.
+					/*Impossible to have a else. In CampaignSortedByMonth class, we could not have more than
+					 12 month. (must be implemented).
+					 It will be impossible to get a next year > than the last one.*/
 				}
 				else
 				{
@@ -73,11 +74,22 @@ public class CampaignSortedByYear{
 
 			if (value.equals(yearMap.lastEntry()))
 			{
-				yearData.setDate(lastYear); // I set the previous year in my actual object 
-				yearData.setMonthData(myInstancesOfMonths); // I set the ArrayList of InstanceOfMonth in My YearData-Object
-				getTotalMailSend.calculMailSendByMonth(myInstancesOfMonths); //I use this to compute all MailSend by month in a same year
-				
-				myListYears.add(yearData); // I make a list of different years found. (Class year declared on top of code)
+				if (lastYear == -1) //If we have only one campaign
+				{
+					yearData.setDate(yearCal);
+					yearData.setMonthData(myInstancesOfMonths); //I set the ArrayList of InstanceOfMonth in My YearData-Object
+					getTotalMailSend.calculMailSendByMonth(myInstancesOfMonths); //I use this to compute all MailSend by month
+					
+					myListYears.add(yearData); //I make a list of different years found.
+				}
+				else
+				{
+					yearData.setDate(lastYear); //I set the previous year in my actual object 
+					yearData.setMonthData(myInstancesOfMonths); //I set the ArrayList of InstanceOfMonth in My YearData-Object
+					getTotalMailSend.calculMailSendByMonth(myInstancesOfMonths); //I use this to compute all MailSend by month in a same year
+
+					myListYears.add(yearData); //I make a list of different years found.	
+				}
 			}
 			lastYear = yearCal;
 		}

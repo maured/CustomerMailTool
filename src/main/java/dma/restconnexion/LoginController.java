@@ -5,6 +5,7 @@ import com.mailjet.client.errors.MailjetException;
 import com.mailjet.client.errors.MailjetSocketTimeoutException;
 import data.treatment.CampaignSortedByMonth;
 import data.treatment.CampaignSortedByYear;
+import data.treatment.GetDate;
 import exception.MyException;
 import mailjet.Campaign;
 import mailjet.Client;
@@ -29,12 +30,16 @@ public class LoginController{
 	routes je n'aurais plus qu'à appeler un mailJetDAO.maMethode().
 */
 	
-	// instantiated at null for security 
+	// Instantiated at null for security 
 	private static MailJetDAO mailJetDAO = null;
 
 	//Implementation of @Autowired to avoid many other configuration in another files 
 	@Autowired public LoginController() {
 
+	}
+
+	private String toJson(Object obj) {
+		return new Gson().toJson(obj);
 	}
 
 	private ApiCampaignStatistic findStatisticFromDate(ApiCampaignStatistic[] statistics, String subject) {
@@ -52,10 +57,12 @@ public class LoginController{
 */
 	@CrossOrigin(origins = "*", allowedHeaders = "*")//http://192.068.1.110:3003
 	@RequestMapping(value = "/auth/login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE) @ResponseStatus(value = HttpStatus.OK)
-	//ici Spring m'instancie ma class InfoConnexionClient pour avoir accès aux attributs clé priv et clé pub
+	
+//Here, Spring instantiate my InfoConnexionClient class to get access to the private & public keys attributes
 	public @ResponseBody String login(@RequestBody InfoConnexionClient infoConnexionClient)
 			throws MailjetSocketTimeoutException, MailjetException {
-		/* ici on instancie un mailJetDAO dans le but d'avoir un point d'accès global aux info de connexion */
+		
+/* We instantiate a MailjetDAO in order to make a global access point to the connexion information */
 		mailJetDAO = new MailJetDAO(infoConnexionClient);
 		ApiClient apiClient = mailJetDAO.getClient();
 
@@ -63,10 +70,6 @@ public class LoginController{
 		System.out.println(infoConnexionClient.getPrivKey());
 
 		return toJson(new Client(apiClient));
-	}
-
-	private String toJson(Object obj) {
-		return new Gson().toJson(obj);
 	}
 	
 /* ------------------------------------------------------------------------------------------------------/
@@ -95,9 +98,6 @@ public class LoginController{
 		}
 		return toJson(campaigns);
 	}
-
-	// mettre en get / utiliser le tots sur la curretn date
-	// Cvoir le redirect vers du post avec le formatagge de la date renvoyé par kévin
 	
 /* ------------------------------------------------------------------------------------------------------/
 	This route is the core of the Sorted Data Page. It send back to the front all data sorted by month and 
@@ -140,15 +140,18 @@ public class LoginController{
 	@CrossOrigin(origins = "*", allowedHeaders = "*")
 	@RequestMapping(value = "/newpage", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(value = HttpStatus.OK)
-	public @ResponseBody String listCampaignByMonth(@RequestBody YearData pYear) throws MailjetSocketTimeoutException, MailjetException {
+	public @ResponseBody String listCampaignByMonth(@RequestBody GetDate pDate) throws MailjetSocketTimeoutException, MailjetException {
 		if(mailJetDAO == null) {
 			MyException myException = new MyException();
 			return myException.badRequest();
 		}
-		ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignSorted(pYear);
-		ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignStatisticList();
+		
+		ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignSorted(pDate);
+		ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignStatisticSorted(pDate);
 		
 		ArrayList<Campaign> campaigns = new ArrayList<>();
+		YearData yearData = new YearData();
+		
 		for (ApiCampaign apiCampaign : apiCampaigns)
 		{
 			Campaign campaign = new Campaign(apiCampaign);
@@ -160,6 +163,11 @@ public class LoginController{
 			}
 			campaigns.add(campaign);
 		}
-		return toJson(campaigns);
+
+		CampaignSortedByMonth sortedByMonth = new CampaignSortedByMonth();
+		TreeMap<Integer, ArrayList<Campaign>> yearMap;
+		yearMap = sortedByMonth.getMapCampaign(campaigns);
+		
+		return toJson(new CampaignSortedByYear().getMyListYears(yearMap, yearData));
 	}
  }

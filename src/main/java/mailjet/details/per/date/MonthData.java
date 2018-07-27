@@ -5,6 +5,7 @@ import java.util.List;
 
 
 public class MonthData{
+	
 	public String monthName;
 	public String getMonthName() {
 		return this.monthName;
@@ -34,13 +35,5 @@ public class MonthData{
 	public MonthData()
 	{
 		
-	}
-	
-	public MonthData(Campaign campaign)
-	{
-		if (campaign != null)
-		{
-			this.totalMailSend = campaign.ProcessedCount;
-		}
 	}
 }

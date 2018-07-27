@@ -1,3 +1,6 @@
+/*This class was created to be prepared to the Mailjet API update. For now, they don't have released their
+* new JAVA wrapper*/
+
 //package mailjet;
 //
 //import com.mailjet.client.MailjetClient;
