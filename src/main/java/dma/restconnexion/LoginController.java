@@ -73,34 +73,6 @@ public class LoginController{
 	}
 	
 /* ------------------------------------------------------------------------------------------------------/
-	This one send back a json with the name and ID Value
-*/
-	/*Deprecated*/
-	@CrossOrigin(origins = "*", allowedHeaders = "*") @RequestMapping(value = "/campaign", method = RequestMethod.GET) @ResponseStatus(value = HttpStatus.OK) public String listCampaign()
-			throws MailjetSocketTimeoutException, MailjetException {
-		if (mailJetDAO == null) {
-			MyException myException = new MyException();
-			return myException.badRequest();
-		}
-
-		ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignList();
-		ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignStatisticList();
-
-		ArrayList<Campaign> campaigns = new ArrayList<>();
-		for (ApiCampaign apiCampaign : apiCampaigns) {
-			Campaign campaign = new Campaign(apiCampaign);
-			ApiCampaignStatistic statistic = findStatisticFromDate(apiStatistics, campaign.Subject);
-
-			if (statistic != null) {
-				campaign.setProcessedCount(statistic.ProcessedCount);
-				campaign.setDeliveredCount(statistic.DeliveredCount);
-			}
-			campaigns.add(campaign);
-		}
-		return toJson(campaigns);
-	}
-	
-/* ------------------------------------------------------------------------------------------------------/
 	This route is the core of the Sorted Data Page. It send back to the front all data sorted by month and 
 	years.
 */

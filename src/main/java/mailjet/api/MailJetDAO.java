@@ -67,38 +67,6 @@ public class MailJetDAO{
 	}
 
 /* ------------------------------------------------------------------------------------------------------/
-		This 2 methods above are used to give the 5 attributes in the /campaign route in my controller.
-		This route is for the first page developed in the Web-App.
-*/
-
-	/*Deprecated*/
-	public ApiCampaign[] getCampaignList() throws MailjetSocketTimeoutException, MailjetException {
-		String currentYear = dateForFilter();
-		MailjetClient client = getAccessToSpecificClient();
-		MailjetRequest request = new MailjetRequest(Campaign.resource)
-				.filter(Campaign.FROMTS, currentYear)
-				.filter(Campaign.LIMIT, "150");
-		MailjetResponse response = client.get(request);
-
-		JSONArray clientData = response.getData();
-
-		return new Gson().fromJson(String.valueOf((clientData)), ApiCampaign[].class);
-	}
-	/*Deprecated*/
-	public ApiCampaignStatistic[] getCampaignStatisticList() throws MailjetSocketTimeoutException, MailjetException {
-		String currentYear = dateForFilter();
-		MailjetClient client = getAccessToSpecificClient();
-		MailjetRequest request = new MailjetRequest(Campaignstatistics.resource)
-				.filter(Campaignstatistics.FROMTS, currentYear)
-				.filter(Campaignstatistics.LIMIT, "150");
-		MailjetResponse response = client.get(request);
-
-		JSONArray clientData = response.getData();
-		
-		return new Gson().fromJson(String.valueOf((clientData)), ApiCampaignStatistic[].class);
-	}
-
-/* ------------------------------------------------------------------------------------------------------/
 		The three above methods are for GET call. We have set the filter with the same timestamp
 		for the two Mailjet API calls. If we don't, the informations will not match.
 */
