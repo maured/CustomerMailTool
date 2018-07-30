@@ -75,6 +75,7 @@ public class LoginController{
 /* ------------------------------------------------------------------------------------------------------/
 	This one send back a json with the name and ID Value
 */
+	/*Deprecated*/
 	@CrossOrigin(origins = "*", allowedHeaders = "*") @RequestMapping(value = "/campaign", method = RequestMethod.GET) @ResponseStatus(value = HttpStatus.OK) public String listCampaign()
 			throws MailjetSocketTimeoutException, MailjetException {
 		if (mailJetDAO == null) {
@@ -104,7 +105,7 @@ public class LoginController{
 	years.
 */
 	@CrossOrigin(origins = "*", allowedHeaders = "*")
-	@RequestMapping(value = "/newpage", method = RequestMethod.GET)
+	@RequestMapping(value = "/campaign-statistics", method = RequestMethod.GET)
 	@ResponseStatus(value = HttpStatus.OK)
 	public @ResponseBody String listCampaignByMonth() throws MailjetSocketTimeoutException, MailjetException {
 		if (mailJetDAO == null) {
@@ -138,7 +139,7 @@ public class LoginController{
 	with the exact date that the user want.
 */
 	@CrossOrigin(origins = "*", allowedHeaders = "*")
-	@RequestMapping(value = "/newpage", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/campaign-statistics", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(value = HttpStatus.OK)
 	public @ResponseBody String listCampaignByMonth(@RequestBody GetDate pDate) throws MailjetSocketTimeoutException, MailjetException {
 		if(mailJetDAO == null) {

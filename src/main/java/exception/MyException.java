@@ -13,6 +13,8 @@ public class MyException
 		return String.valueOf(obj);
 	}
 	
+	/*Ajouter des exceptions si Mailjet crash (TimeOut par exemple)*/
+	
 	/*This is for all campaign with an important Attribute with Null value*/
 	public JSONArray mailjetAttributEmpty(JSONArray clientData, String attributeName)
 	{
@@ -26,8 +28,8 @@ public class MyException
 				if ("".equals(clientData.getJSONObject(i).get(attributeName).toString()))
 				{
 					/*A implémenter plus tard : Créer un objet comme ApiCampaign qui récupère toutes les
-					campagnes qui possède un attribut CreatedAt & sans l'attribut SendStartAt le but sera 
-					d'avoir une liste de campagnes créées ET non envoyées*/
+					campagnes qui possède un attribut CreatedAt qui a une valeur & avec l'attribut SendStartAt
+					SANS valeur. Le but sera d'avoir une liste de campagnes créées ET non envoyées*/
 					
 					clientData.remove(i);
 					if (i > 0)
