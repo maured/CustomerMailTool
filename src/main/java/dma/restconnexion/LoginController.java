@@ -19,7 +19,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.TreeMap;
 
 @RestController
@@ -79,13 +85,25 @@ public class LoginController{
 	@CrossOrigin(origins = "*", allowedHeaders = "*")
 	@RequestMapping(value = "/campaign-statistics", method = RequestMethod.GET)
 	@ResponseStatus(value = HttpStatus.OK)
-	public @ResponseBody String listCampaignByMonth() throws MailjetSocketTimeoutException, MailjetException {
+	public @ResponseBody String listCampaignByMonth()
+			throws MailjetSocketTimeoutException, MailjetException, ParseException {
 		if (mailJetDAO == null) {
 			MyException myException = new MyException();
 			return myException.badRequest();
 		}
-		ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignSortedByRecentDate();
-		ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignStatisticListByRecentDate();
+
+		DateFormat sdt = new SimpleDateFormat("yyyy" + "-01-01'T'00:00:00");
+		String dateAsString = mailJetDAO.dateForFilter();
+		
+		Date dateYear = sdt.parse(dateAsString);
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(dateYear);
+		
+		ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignsForAYear(cal.get(Calendar.YEAR));
+		ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignsStatisticsForAYear(cal.get(Calendar.YEAR));
+		
+//		ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignSortedByRecentDate();
+//		ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignStatisticSortedByRecentDate();
 
 		ArrayList<Campaign> campaigns = new ArrayList<>();
 		YearData yearData = new YearData();
@@ -107,20 +125,30 @@ public class LoginController{
 	}
 	
 /* ------------------------------------------------------------------------------------------------------/
-	This one will be use to pass out the 1000 filter limitation. We will use some post to send back data
+	This one will be use to avoid the 1000 filter limitation. We will use some post to send back data
 	with the exact date that the user want.
 */
 	@CrossOrigin(origins = "*", allowedHeaders = "*")
 	@RequestMapping(value = "/campaign-statistics", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(value = HttpStatus.OK)
-	public @ResponseBody String listCampaignByMonth(@RequestBody GetDate pDate) throws MailjetSocketTimeoutException, MailjetException {
+	public @ResponseBody String listCampaignByMonth(@RequestBody GetDate pDate)
+			throws MailjetSocketTimeoutException, MailjetException, ParseException {
 		if(mailJetDAO == null) {
 			MyException myException = new MyException();
 			return myException.badRequest();
 		}
 		
-		ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignSorted(pDate);
-		ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignStatisticSorted(pDate);
+		DateFormat sdt = new SimpleDateFormat("yyyy" + "-01-01'T'00:00:00");
+		String dateAsString = pDate.getDate();
+		
+		Date dateYear = sdt.parse(dateAsString);
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(dateYear);
+				
+		ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignsForAYear(cal.get(Calendar.YEAR));
+		ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignsStatisticsForAYear(cal.get(Calendar.YEAR));
+		//ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignSorted(pDate);
+		//ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignStatisticSorted(pDate);
 		
 		ArrayList<Campaign> campaigns = new ArrayList<>();
 		YearData yearData = new YearData();
