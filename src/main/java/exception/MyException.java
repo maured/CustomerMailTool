@@ -13,6 +13,14 @@ public class MyException
 		return String.valueOf(obj);
 	}
 	
+	public String anyDataException()
+	{
+		JSONObject obj = new JSONObject();
+		obj.put("errorStatus", "542. Any data available for this year");
+		
+		return String.valueOf(obj);
+	}
+	
 	/*Ajouter des exceptions si Mailjet crash (TimeOut par exemple)*/
 	
 	/*This is for all campaign with an important Attribute with Null value*/

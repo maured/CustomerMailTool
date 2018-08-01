@@ -100,10 +100,12 @@ public class LoginController{
 		cal.setTime(dateYear);
 		
 		ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignsForAYear(cal.get(Calendar.YEAR));
+		if (apiCampaigns.length == 0) //i check to prevent IndexOutOfboundException when we will be the 01/01/new year and any campaign were sent yet.
+		{
+			MyException myException = new MyException();
+			return myException.anyDataException();
+		}
 		ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignsStatisticsForAYear(cal.get(Calendar.YEAR));
-		
-//		ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignSortedByRecentDate();
-//		ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignStatisticSortedByRecentDate();
 
 		ArrayList<Campaign> campaigns = new ArrayList<>();
 		YearData yearData = new YearData();
@@ -146,9 +148,12 @@ public class LoginController{
 		cal.setTime(dateYear);
 				
 		ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignsForAYear(cal.get(Calendar.YEAR));
+		if (apiCampaigns.length == 0)
+		{
+			MyException myException = new MyException();
+			return myException.anyDataException();
+		}
 		ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignsStatisticsForAYear(cal.get(Calendar.YEAR));
-		//ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignSorted(pDate);
-		//ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignStatisticSorted(pDate);
 		
 		ArrayList<Campaign> campaigns = new ArrayList<>();
 		YearData yearData = new YearData();

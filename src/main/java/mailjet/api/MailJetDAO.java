@@ -73,12 +73,93 @@ public class MailJetDAO{
 	
 	
 	/* This methods are for GET / POST call FOR A YEAR*/
-	/*---------------------------- Code de moi (à tester) ----------------------------*/
-	public ApiCampaignStatistic[] getCampaignStatisticFromADate(Date date) throws MailjetSocketTimeoutException, MailjetException {
+	
+	/*---------------------------- Code for Campaigns Resource ----------------------------*/
+	public ApiCampaign[] getCampaignsFromADate(Date date) throws MailjetSocketTimeoutException, MailjetException {
 		
 		DateFormat sdt = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
 		String myDateFormat = sdt.format(date);
 		
+		MailjetClient client = getAccessToSpecificClient();
+		MailjetRequest request = new MailjetRequest(Campaign.resource)
+				.filter(Campaign.FROMTS, myDateFormat)
+				.filter(Campaign.LIMIT, "0");
+		MailjetResponse response = client.get(request);
+
+		JSONArray clientData = response.getData();
+		MyException myException = new MyException();
+		myException.mailjetAttributEmpty(clientData, "SendStartAt");
+
+		return new Gson().fromJson(String.valueOf((clientData)), ApiCampaign[].class);
+	}
+	
+	public ApiCampaign[]  getCampaignsForAYear(int year) throws MailjetSocketTimeoutException, MailjetException {
+		
+		ArrayList<ApiCampaign> arrApiCampaignForAYear = new ArrayList<>();
+		//We must call MJ : from a date and we stop when we change year.
+		
+		Calendar calendar = GregorianCalendar.getInstance(Locale.FRANCE);
+		
+		calendar.set(Calendar.YEAR,year);
+		calendar.set(Calendar.DAY_OF_YEAR,1);
+		calendar.set(Calendar.HOUR_OF_DAY,0);
+		calendar.set(Calendar.MINUTE,0);
+		calendar.set(Calendar.SECOND,0);
+		Date fromDate =  calendar.getTime();
+		
+		calendar=GregorianCalendar.getInstance(Locale.FRANCE);
+		
+		calendar.set(Calendar.YEAR,year);
+		calendar.set(Calendar.MONTH,11);
+		calendar.set(Calendar.DAY_OF_MONTH,31);
+		calendar.set(Calendar.HOUR_OF_DAY,23);
+		calendar.set(Calendar.MINUTE,59);
+		calendar.set(Calendar.SECOND,59);
+		Date lastDayOfYear=calendar.getTime();
+
+		Date lastDateUsed = new Date();
+		
+		while (fromDate.before(lastDayOfYear))
+		{
+			if (getCampaignsFromADate(fromDate).length == 0) // Here i check if a MJ call is possible.
+				break;
+			else
+			{
+				ApiCampaign[] tmpResultFromMJ = getCampaignsFromADate(fromDate);
+				fromDate = tmpResultFromMJ[tmpResultFromMJ.length - 1].SendStartAt;
+				
+				Calendar yearToCompare = Calendar.getInstance();
+				yearToCompare.setTime(tmpResultFromMJ[tmpResultFromMJ.length - 1].SendStartAt);
+				int yearOfFirstSendingDate = yearToCompare.get(Calendar.YEAR);
+				
+				if (year < yearOfFirstSendingDate)
+					break;
+				// now remove the result that are superior to the firstDayOfYear
+				// if fromDate is before Years end, I want it all
+				if (fromDate.before(lastDayOfYear) && !fromDate.equals(lastDateUsed))
+					arrApiCampaignForAYear.addAll(Arrays.asList(tmpResultFromMJ));
+				else
+					break;	
+			}
+			lastDateUsed = fromDate;
+		}
+		ApiCampaign[] finalResult = new ApiCampaign[arrApiCampaignForAYear.size()];
+		if (arrApiCampaignForAYear.isEmpty())
+			return finalResult;
+		else
+		{
+			finalResult = arrApiCampaignForAYear.toArray(finalResult);
+			System.out.println("fist:" + arrApiCampaignForAYear.get(0).SendStartAt + "    last:"+arrApiCampaignForAYear.get(arrApiCampaignForAYear.size()-1).SendStartAt);
+			return finalResult;	
+		}
+	}
+	
+	/*---------------------------- Code for CampaignsStatistics resources ----------------------------*/
+	public ApiCampaignStatistic[] getCampaignStatisticFromADate(Date date) throws MailjetSocketTimeoutException, MailjetException {
+
+		DateFormat sdt = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+		String myDateFormat = sdt.format(date);
+
 		MailjetClient client = getAccessToSpecificClient();
 		MailjetRequest request = new MailjetRequest(Campaignstatistics.resource)
 				.filter(Campaign.FROMTS, myDateFormat)
@@ -132,83 +213,13 @@ public class MailJetDAO{
 				if (fromDate.before(lastDayOfYear) && !fromDate.equals(lastDateUsed))
 					arrApiCampaignForAYear.addAll(Arrays.asList(tmpResultFromMJ));
 				else
-					break;	
+					break;
 			}
 			lastDateUsed = fromDate;
 		}
 		ApiCampaignStatistic[] finalResult = new ApiCampaignStatistic[arrApiCampaignForAYear.size()];
 		finalResult = arrApiCampaignForAYear.toArray(finalResult);
 		System.out.println("fist:" + arrApiCampaignForAYear.get(0).CampaignSendStartAt+ "    last:"+arrApiCampaignForAYear.get(arrApiCampaignForAYear.size()-1).CampaignSendStartAt);
-		return finalResult;
-	}
-	
-	
-	/*---------------------------- Code de JSA (testé sur le post)----------------------------*/
-	public ApiCampaign[] getCampaignsFromADate(Date date) throws MailjetSocketTimeoutException, MailjetException {
-		
-		DateFormat sdt = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
-		String myDateFormat = sdt.format(date);
-		
-		MailjetClient client = getAccessToSpecificClient();
-		MailjetRequest request = new MailjetRequest(Campaign.resource)
-				.filter(Campaign.FROMTS, myDateFormat)
-				.filter(Campaign.LIMIT, "0");
-		MailjetResponse response = client.get(request);
-
-		JSONArray clientData = response.getData();
-		MyException myException = new MyException();
-		myException.mailjetAttributEmpty(clientData, "SendStartAt");
-
-		return new Gson().fromJson(String.valueOf((clientData)), ApiCampaign[].class);
-	}
-	
-	public ApiCampaign[]  getCampaignsForAYear(int year) throws MailjetSocketTimeoutException, MailjetException {
-		
-		ArrayList<ApiCampaign> arrApiCampaignForAYear = new ArrayList<>();
-		//We must call MJ : from a date and we stop when we change year.
-		
-		Calendar calendar = GregorianCalendar.getInstance(Locale.FRANCE);
-		
-		calendar.set(Calendar.YEAR,year);
-		calendar.set(Calendar.DAY_OF_YEAR,1);
-		calendar.set(Calendar.HOUR_OF_DAY,0);
-		calendar.set(Calendar.MINUTE,0);
-		calendar.set(Calendar.SECOND,0);
-		Date fromDate =  calendar.getTime();
-		
-		calendar=GregorianCalendar.getInstance(Locale.FRANCE);
-		
-		calendar.set(Calendar.YEAR,year);
-		calendar.set(Calendar.MONTH,11);
-		calendar.set(Calendar.DAY_OF_MONTH,31);
-		calendar.set(Calendar.HOUR_OF_DAY,23);
-		calendar.set(Calendar.MINUTE,59);
-		calendar.set(Calendar.SECOND,59);
-		Date lastDayOfYear=calendar.getTime();
-
-		Date lastDateUsed = new Date();
-		
-		while (fromDate.before(lastDayOfYear))
-		{
-			if (getCampaignsFromADate(fromDate).length == 0)
-				break;
-			else
-			{
-				ApiCampaign[] tmpResultFromMJ = getCampaignsFromADate(fromDate);
-				fromDate = tmpResultFromMJ[tmpResultFromMJ.length - 1].SendStartAt;
-
-				// now remove the result that are superior to the firstDayOfYear
-				// if fromDate is before Years end, I want it all
-				if (fromDate.before(lastDayOfYear) && !fromDate.equals(lastDateUsed))
-					arrApiCampaignForAYear.addAll(Arrays.asList(tmpResultFromMJ));
-				else
-					break;	
-			}
-			lastDateUsed = fromDate;
-		}
-		ApiCampaign[] finalResult = new ApiCampaign[arrApiCampaignForAYear.size()];
-		finalResult = arrApiCampaignForAYear.toArray(finalResult);
-		System.out.println("fist:" + arrApiCampaignForAYear.get(0).SendStartAt + "    last:"+arrApiCampaignForAYear.get(arrApiCampaignForAYear.size()-1).SendStartAt);
 		return finalResult;
 	}
 }
