@@ -120,16 +120,20 @@ public class MailJetDAO{
 
 		while (fromDate.before(lastDayOfYear))
 		{
-			ApiCampaignStatistic[] tmpResultFromMJ = getCampaignStatisticFromADate(fromDate);
-			fromDate = tmpResultFromMJ[tmpResultFromMJ.length - 1].CampaignSendStartAt;
-
-			// now remove the result that are superior to the firstDayOfYear
-			// if fromDate is before Years end, I want it all
-			if (fromDate.before(lastDayOfYear) && !fromDate.equals(lastDateUsed))
-				arrApiCampaignForAYear.addAll(Arrays.asList(tmpResultFromMJ));
-			else
+			if (getCampaignStatisticFromADate(fromDate).length == 0)
 				break;
-			
+			else
+			{
+				ApiCampaignStatistic[] tmpResultFromMJ = getCampaignStatisticFromADate(fromDate);
+				fromDate = tmpResultFromMJ[tmpResultFromMJ.length - 1].CampaignSendStartAt;
+
+				// now remove the result that are superior to the firstDayOfYear
+				// if fromDate is before Years end, I want it all
+				if (fromDate.before(lastDayOfYear) && !fromDate.equals(lastDateUsed))
+					arrApiCampaignForAYear.addAll(Arrays.asList(tmpResultFromMJ));
+				else
+					break;	
+			}
 			lastDateUsed = fromDate;
 		}
 		ApiCampaignStatistic[] finalResult = new ApiCampaignStatistic[arrApiCampaignForAYear.size()];
@@ -186,16 +190,20 @@ public class MailJetDAO{
 		
 		while (fromDate.before(lastDayOfYear))
 		{
-			ApiCampaign[] tmpResultFromMJ = getCampaignsFromADate(fromDate);
-			fromDate = tmpResultFromMJ[tmpResultFromMJ.length - 1].SendStartAt;
-			
-			// now remove the result that are superior to the firstDayOfYear
-			// if fromDate is before Years end, I want it all
-			if (fromDate.before(lastDayOfYear) && !fromDate.equals(lastDateUsed))
-				arrApiCampaignForAYear.addAll(Arrays.asList(tmpResultFromMJ));
-			else
+			if (getCampaignsFromADate(fromDate).length == 0)
 				break;
-			
+			else
+			{
+				ApiCampaign[] tmpResultFromMJ = getCampaignsFromADate(fromDate);
+				fromDate = tmpResultFromMJ[tmpResultFromMJ.length - 1].SendStartAt;
+
+				// now remove the result that are superior to the firstDayOfYear
+				// if fromDate is before Years end, I want it all
+				if (fromDate.before(lastDayOfYear) && !fromDate.equals(lastDateUsed))
+					arrApiCampaignForAYear.addAll(Arrays.asList(tmpResultFromMJ));
+				else
+					break;	
+			}
 			lastDateUsed = fromDate;
 		}
 		ApiCampaign[] finalResult = new ApiCampaign[arrApiCampaignForAYear.size()];
