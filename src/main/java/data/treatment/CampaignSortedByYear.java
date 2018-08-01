@@ -22,13 +22,13 @@ public class CampaignSortedByYear{
 		Calendar cal = Calendar.getInstance();
 		int lastYear = -1;
 		
-		/* For each on != object for performance*/
+		/* ForEach on different objects is for performance*/
 		for(Map.Entry<Integer, ArrayList<Campaign>> value : yearMap.entrySet()) {
 			ArrayList<Campaign> listCampain = value.getValue();
 
 			cal.setTime(listCampain.get(0).SendingDate);
-
-			String monthCal = (cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()));
+			
+			String monthCal = (cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.ENGLISH));
 			int yearCal = cal.get(Calendar.YEAR);
 
 			if (yearCal != lastYear)
