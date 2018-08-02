@@ -148,6 +148,8 @@ public class LoginController{
 		cal.setTime(dateYear);
 				
 		ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignsForAYear(cal.get(Calendar.YEAR));
+		// A break si c'est null au lieu de renvoyer un jsoin avec un message.
+		//sinon j'execute le reste des traitements.
 		if (apiCampaigns.length == 0)
 		{
 			MyException myException = new MyException();

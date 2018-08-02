@@ -4,15 +4,15 @@
 //
 //import org.json.JSONException;
 //import org.json.JSONObject;
-//import org.restlet.Response;
-//import org.restlet.data.ChallengeScheme;
-//import org.restlet.resource.ClientResource;
-//import org.restlet.resource.ResourceException;
-//
-//import com.edeal.frontline.Utils;
-//import com.edeal.frontline.netbusiness.MassEmailingCreator;
-//import com.edeal.frontline.services.FlServiceException;
-//import com.edeal.frontline.services.RestletClientHttpHandler;
+////import org.restlet.Response;
+////import org.restlet.data.ChallengeScheme;
+////import org.restlet.resource.ClientResource;
+////import org.restlet.resource.ResourceException;
+////
+////import com.edeal.frontline.Utils;
+////import com.edeal.frontline.netbusiness.MassEmailingCreator;
+////import com.edeal.frontline.services.FlServiceException;
+////import com.edeal.frontline.services.RestletClientHttpHandler;
 //
 //public class HubGetMailjetAPIToken {
 //
@@ -23,21 +23,21 @@
 //	public class APIKeys {
 //		public String publicKey=null;
 //		public String privateKey=null;
-//		
+//
 //		public APIKeys(String publicK,String privateK ) {
 //			this.publicKey=publicK;
 //			this.privateKey=privateK;
 //		}
 //	}
-//	
+//
 //	public HubGetMailjetAPIToken() {
-//		
+//
 //	}
 //	public APIKeys getMailjetApiKeys(String hubLogin, String hubPassword) throws Exception {
 //		String jsonResponse=callHubMailjetApiKeys(hubLogin, hubPassword);
 //		return unScrambleApiKeys(getAPITokenFromJSONResponse(jsonResponse));
 //	}
-//	
+//
 //	private String callHubMailjetApiKeys(String login, String password) throws Exception {
 //		ClientResource resource = null;
 //		String result = null;
@@ -51,26 +51,26 @@
 //			}
 //		    result = response.getEntity().getText();
 // 		} catch (ResourceException e) {
-//			
+//
 //			throw new Exception("Error GETing SMTP information from hub:"+resource.getResponse());
 //		} catch (IOException e) {
-// 			
+//
 // 			throw new Exception("Error GETing SMTP information from hub:"+resource.getResponse());
 // 		} finally {
 // 			RestletClientHttpHandler.getHandler().closeClientResource(resource);
 // 		}
-//			 		
+//
 //	    return result;
 // 	}
-//	
+//
 //	private String getAPITokenFromJSONResponse(String jsonResponse) throws JSONException {
 //		JSONObject jsonObj=new JSONObject(jsonResponse);
 //		return jsonObj.getString("token");
-//	
+//
 //	}
-//	
+//
 //	private APIKeys unScrambleApiKeys(String scrambledKeys) throws Exception {
-//		
+//
 //		String unScrambledApiKeys = unScramble(scrambledKeys);
 //		int separatorPos = unScrambledApiKeys.indexOf(TOKEN_SEPARATOR);
 //		String apiPublicKey=unScrambledApiKeys.substring(0, separatorPos);
@@ -80,15 +80,15 @@
 //		}
 //		APIKeys apiKeys=new APIKeys(apiPublicKey,apiPrivateKey);
 //		return apiKeys;
-//		
+//
 //	}
-//	
+//
 //	private String unScramble(String toUnscramble) {
 //		String scrambleKey = SCRAMBLINGKEY;
 //		String b64 = new String(com.edeal.frontline.util.Base64.decode(toUnscramble));
 //		return xorObfuscate(b64, scrambleKey);
 //	}
-//	
+//
 //	private String xorObfuscate(String toScramble, String key) {
 //		String sEncrypted = "";
 //		int keyLen = key.length();
@@ -100,7 +100,7 @@
 //	}
 //
 //	public static void main(String[] args) {
-//		
+//
 //		HubGetMailjetAPIToken getMJtoken=new HubGetMailjetAPIToken();
 //		APIKeys keys;
 //		try {
@@ -110,8 +110,8 @@
 //			System.err.println("cannot get APIKeys:"+e.getMessage());
 //			e.printStackTrace(System.err);
 //		}
-//		
-//		
-//		
+//
+//
+//
 //	}
 //}

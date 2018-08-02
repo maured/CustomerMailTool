@@ -74,6 +74,7 @@ public class MailJetDAO{
 	
 	/* This methods are for GET / POST call FOR A YEAR*/
 	
+	/* This method of treatment could be improve treating by month whereas per year. */
 	/*---------------------------- Code for Campaigns Resource ----------------------------*/
 	public ApiCampaign[] getCampaignsFromADate(Date date) throws MailjetSocketTimeoutException, MailjetException {
 		
@@ -121,15 +122,15 @@ public class MailJetDAO{
 		
 		while (fromDate.before(lastDayOfYear))
 		{
-			if (getCampaignsFromADate(fromDate).length == 0) // Here i check if a MJ call is possible.
+			ApiCampaign[] tmpResultFromMJ = getCampaignsFromADate(fromDate); 
+			if (tmpResultFromMJ.length == 0) // Here i check if a MJ call is possible.
 				break;
 			else
 			{
-				ApiCampaign[] tmpResultFromMJ = getCampaignsFromADate(fromDate);
 				fromDate = tmpResultFromMJ[tmpResultFromMJ.length - 1].SendStartAt;
 				
 				Calendar yearToCompare = Calendar.getInstance();
-				yearToCompare.setTime(tmpResultFromMJ[tmpResultFromMJ.length - 1].SendStartAt);
+				yearToCompare.setTime(tmpResultFromMJ[0].SendStartAt); // checker sur la premiere campagne
 				int yearOfFirstSendingDate = yearToCompare.get(Calendar.YEAR);
 				
 				if (year < yearOfFirstSendingDate)
@@ -139,7 +140,10 @@ public class MailJetDAO{
 				if (fromDate.before(lastDayOfYear) && !fromDate.equals(lastDateUsed))
 					arrApiCampaignForAYear.addAll(Arrays.asList(tmpResultFromMJ));
 				else
-					break;	
+				{
+					arrApiCampaignForAYear.addAll(Arrays.asList(tmpResultFromMJ));
+					break;
+				}
 			}
 			lastDateUsed = fromDate;
 		}
@@ -201,19 +205,28 @@ public class MailJetDAO{
 
 		while (fromDate.before(lastDayOfYear))
 		{
-			if (getCampaignStatisticFromADate(fromDate).length == 0)
+			ApiCampaignStatistic[] tmpResultFromMJ = getCampaignStatisticFromADate(fromDate);	
+			if (tmpResultFromMJ.length == 0)
 				break;
 			else
 			{
-				ApiCampaignStatistic[] tmpResultFromMJ = getCampaignStatisticFromADate(fromDate);
 				fromDate = tmpResultFromMJ[tmpResultFromMJ.length - 1].CampaignSendStartAt;
 
+				Calendar yearToCompare = Calendar.getInstance();
+				yearToCompare.setTime(tmpResultFromMJ[0].CampaignSendStartAt); // checker sur la premiere campagne
+				int yearOfFirstSendingDate = yearToCompare.get(Calendar.YEAR);
+
+				if (year < yearOfFirstSendingDate)
+					break;
 				// now remove the result that are superior to the firstDayOfYear
 				// if fromDate is before Years end, I want it all
 				if (fromDate.before(lastDayOfYear) && !fromDate.equals(lastDateUsed))
 					arrApiCampaignForAYear.addAll(Arrays.asList(tmpResultFromMJ));
 				else
+				{
+					arrApiCampaignForAYear.addAll(Arrays.asList(tmpResultFromMJ));
 					break;
+				}
 			}
 			lastDateUsed = fromDate;
 		}

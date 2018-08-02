@@ -1,5 +1,6 @@
 package exception;
 
+import com.sun.org.apache.bcel.internal.generic.NEW;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -15,8 +16,10 @@ public class MyException
 	
 	public String anyDataException()
 	{
+		Error error = new Error();
+		
 		JSONObject obj = new JSONObject();
-		obj.put("errorStatus", "542. Any data available for this year");
+		obj.put("errorStatus", 542);
 		
 		return String.valueOf(obj);
 	}
