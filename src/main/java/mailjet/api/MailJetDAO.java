@@ -9,17 +9,11 @@ import com.mailjet.client.errors.MailjetSocketTimeoutException;
 import com.mailjet.client.resource.Apikey;
 import com.mailjet.client.resource.Campaign;
 import com.mailjet.client.resource.Campaignstatistics;
-import data.treatment.GetDate;
 import dma.restconnexion.InfoConnexionClient;
 import exception.MyException;
-import mailjet.details.per.date.YearData;
 import org.json.JSONArray;
-
-import java.sql.Timestamp;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -70,7 +64,6 @@ public class MailJetDAO{
 		
 		return apiClient[0];
 	}
-	
 	
 	/* This methods are for GET / POST call FOR A YEAR*/
 	

@@ -1,12 +1,7 @@
 package mailjet;
 
 import mailjet.api.ApiCampaign;
-
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
 
 public class Campaign {
     public Date CreationDate;

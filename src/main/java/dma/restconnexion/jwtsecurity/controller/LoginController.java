@@ -1,4 +1,4 @@
-package dma.restconnexion;
+package dma.restconnexion.jwtsecurity.controller;
 
 import com.google.gson.Gson;
 import com.mailjet.client.errors.MailjetException;
@@ -6,6 +6,7 @@ import com.mailjet.client.errors.MailjetSocketTimeoutException;
 import data.treatment.CampaignSortedByMonth;
 import data.treatment.CampaignSortedByYear;
 import data.treatment.GetDate;
+import dma.restconnexion.InfoConnexionClient;
 import exception.MyException;
 import mailjet.Campaign;
 import mailjet.Client;
@@ -18,14 +19,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.TreeMap;
 
 @RestController
@@ -35,15 +34,14 @@ public class LoginController{
 /*tant que toutes les methodes de l'api Mailjet vont être implémentées dans mailJetDAO, pour chaque nouvelles
 	routes je n'aurais plus qu'à appeler un mailJetDAO.maMethode().
 */
-	
-	// Instantiated at null for security 
+	// Instantiated at null for jwtsecurity 
 	private static MailJetDAO mailJetDAO = null;
 
 	//Implementation of @Autowired to avoid many other configuration in another files 
 	@Autowired public LoginController() {
 
 	}
-
+	
 	private String toJson(Object obj) {
 		return new Gson().toJson(obj);
 	}
@@ -56,18 +54,18 @@ public class LoginController{
 		}
 		return null;
 	}
-
+	
 /* ------------------------------------------------------------------------------------------------------/
 	While we don't go through this route, we don't have access to another routes/requests.
 	Moreover, this one send back a json with the Name & ID values
 */
 	@CrossOrigin(origins = "*", allowedHeaders = "*")//http://192.068.1.110:3003
 	@RequestMapping(value = "/auth/login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE) @ResponseStatus(value = HttpStatus.OK)
-	
+
 //Here, Spring instantiate my InfoConnexionClient class to get access to the private & public keys attributes
 	public @ResponseBody String login(@RequestBody InfoConnexionClient infoConnexionClient)
 			throws MailjetSocketTimeoutException, MailjetException {
-		
+
 /* We instantiate a MailjetDAO in order to make a global access point to the connexion information */
 		mailJetDAO = new MailJetDAO(infoConnexionClient);
 		ApiClient apiClient = mailJetDAO.getClient();

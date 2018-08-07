@@ -8,7 +8,6 @@ public class InfoConnexionClient{
 	public String getPubKey() {
 		return pubKey;
 	}
-
 	public void setPubKey(String pubKey) {
 		this.pubKey = pubKey;
 	}
@@ -16,7 +15,6 @@ public class InfoConnexionClient{
 	public String getPrivKey() {
 		return privKey;
 	}
-
 	public void setPrivKey(String privKey) {
 		this.privKey = privKey;
 	}

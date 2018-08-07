@@ -3,7 +3,6 @@ package mailjet.details.per.date;
 import mailjet.Campaign;
 import java.util.List;
 
-
 public class MonthData{
 	
 	public String monthName;
