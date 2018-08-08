@@ -10,6 +10,7 @@ import com.mailjet.client.resource.Apikey;
 import com.mailjet.client.resource.Campaign;
 import com.mailjet.client.resource.Campaignstatistics;
 import dma.restconnexion.InfoConnexionClient;
+import dma.restconnexion.UserInfosConnexion;
 import exception.MyException;
 import org.json.JSONArray;
 import java.text.DateFormat;
@@ -38,8 +39,12 @@ public class MailJetDAO{
 	While a mailjet DAO instance is running (JVM running) information of connexion will be stocked
 	in my connexion object
 */
+	
 	private InfoConnexionClient connexion;
-
+	
+	private UserInfosConnexion connexionTest;
+	//UserInfosConnexion userInfosConnexion = new UserInfosConnexion().getClass();
+	
 	public MailJetDAO(InfoConnexionClient infoConnexionClient) {
 		this.connexion = infoConnexionClient;
 	}
@@ -48,6 +53,8 @@ public class MailJetDAO{
 	private MailjetClient getAccessToSpecificClient() {
 		String pubKey = this.connexion.getPubKey();
 		String privKey = this.connexion.getPrivKey();
+		
+		
 
 		return new MailjetClient(pubKey, privKey);
 	}

@@ -13,9 +13,9 @@ public class JwtGenerator{
 		//date d'expiration = .setExpiration(date)
 		
 		Claims claims = Jwts.claims()
-				.setSubject(jwtUser.getUserName());
+				.setSubject(jwtUser.getLogin());
 		claims.put("password", jwtUser.getPassword());
-		claims.put("role", jwtUser.getRole());
+		//claims.put("role", jwtUser.getRole());
 		
 		return Jwts.builder()
 				.setClaims(claims)

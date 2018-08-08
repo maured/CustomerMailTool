@@ -52,7 +52,7 @@ public class CampaignSortedByYear{
 						month = new MonthData(); // I clean my MonthData Object
 					}
 					/*Impossible to have a else. In CampaignSortedByMonth class, we could not have more than
-					 12 month. (must be implemented).
+					 12 month.
 					 It will be impossible to get a next year > than the last one.*/
 				}
 				else

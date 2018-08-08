@@ -14,8 +14,8 @@ public class GetTotalMailSend{
 			for (Campaign campaign : month.campaignList) {
 				int campaignSize = month.campaignList.size();
 				int mailSendInCampaign=0;
-				if (campaign!=null) {
-					if (campaign.ProcessedCount!=null) {
+				if (campaign != null) {
+					if (campaign.ProcessedCount != null) {
 						mailSendInCampaign = campaign.ProcessedCount;
 					}	
 				} 

@@ -2,7 +2,7 @@ package mailjet.details.per.date;
 
 import java.util.ArrayList;
 
-public class YearData{
+public class  YearData{
 
 	int year;
 	public int getDate() {

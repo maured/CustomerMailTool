@@ -4,10 +4,8 @@ import dma.restconnexion.jwtsecurity.model.JwtAuthenticationToken;
 import dma.restconnexion.jwtsecurity.model.JwtUser;
 import dma.restconnexion.jwtsecurity.model.JwtUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -40,10 +38,8 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
 			throw new RuntimeException("JWT token is incorrect");
 		}
 		
-		List<GrantedAuthority> grantedAuthorities = AuthorityUtils
-				.commaSeparatedStringToAuthorityList(jwtUser.getRole());
-		return new JwtUserDetails(jwtUser.getUserName(), jwtUser.getPassword()
-				, token, grantedAuthorities);
+		//List<GrantedAuthority> grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(jwtUser.getRole());
+		return (new JwtUserDetails(jwtUser.getLogin(), jwtUser.getPassword(), token)); //, grantedAuthorities
 	}
 	@Override
 	public boolean supports(Class<?> aClass) {

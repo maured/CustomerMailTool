@@ -67,7 +67,7 @@ public class LoginController{
 			throws MailjetSocketTimeoutException, MailjetException {
 
 /* We instantiate a MailjetDAO in order to make a global access point to the connexion information */
-		mailJetDAO = new MailJetDAO(infoConnexionClient);
+		mailJetDAO = new MailJetDAO(infoConnexionClient); //UserinfosConnexion a l'indide de la liste ou le token a match
 		ApiClient apiClient = mailJetDAO.getClient();
 
 		System.out.println(infoConnexionClient.getPubKey());
