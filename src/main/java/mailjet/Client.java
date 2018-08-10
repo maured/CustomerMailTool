@@ -14,4 +14,18 @@ public class Client {
             this.Id = apiClient.getId();
         }
     }
+
+    public String getNameClient() {
+        return Name;
+    }
+    public void setName(String name) {
+        Name = name;
+    }
+
+    public String getIdClient() {
+        return Id;
+    }
+    public void setId(String id) {
+        Id = id;
+    }
 }

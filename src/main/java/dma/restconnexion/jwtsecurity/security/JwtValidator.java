@@ -3,12 +3,14 @@ package dma.restconnexion.jwtsecurity.security;
 import dma.restconnexion.jwtsecurity.model.JwtUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class JwtValidator {
-	
-	private String secret = "test";
+
+	@Value(value = "${jwt.secret}")
+	public String secret;
 	
 	public JwtUser validate(String token) 
 	{
@@ -21,7 +23,6 @@ public class JwtValidator {
 			jwtUser = new JwtUser();
 			jwtUser.setLogin(body.getSubject());
 			jwtUser.setPassword((String) body.get("password"));
-			//jwtUser.setRole((String) body.get("role"));
 		}
 		catch(Exception e) {
 			System.out.println(e);

@@ -11,6 +11,16 @@ public class  YearData{
 	public void setDate(int year) {
 		this.year = year;
 	}
+	String nameClient;
+	String clientID;
+
+	public void setNameClient(String nameClient) {
+		this.nameClient = nameClient;
+	}
+
+	public void setClientID(String clientID) {
+		this.clientID = clientID;
+	}
 
 	ArrayList<MonthData> monthData = new ArrayList<>();
 	public ArrayList<MonthData> getMonthData() {

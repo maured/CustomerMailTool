@@ -29,33 +29,25 @@ public class MailJetDAO{
 	{
 		DateFormat sdt = new SimpleDateFormat("yyyy" + "-01-01'T'00:00:00");
 		Date today = Calendar.getInstance().getTime();
-		
 		String myDateFormat = sdt.format(today);
 
 		return myDateFormat;
 	}
-	
 /*	 
 	While a mailjet DAO instance is running (JVM running) information of connexion will be stocked
 	in my connexion object
 */
+	private UserInfosConnexion connexion;
 	
-	private InfoConnexionClient connexion;
-	
-	private UserInfosConnexion connexionTest;
-	//UserInfosConnexion userInfosConnexion = new UserInfosConnexion().getClass();
-	
-	public MailJetDAO(InfoConnexionClient infoConnexionClient) {
-		this.connexion = infoConnexionClient;
+	public MailJetDAO(UserInfosConnexion userInfosConnexion) {
+		this.connexion = userInfosConnexion;
 	}
 	
 	/*For the connexion */
 	private MailjetClient getAccessToSpecificClient() {
-		String pubKey = this.connexion.getPubKey();
-		String privKey = this.connexion.getPrivKey();
+		String pubKey = this.connexion.getPublicK();
+		String privKey = this.connexion.getPrivateK();
 		
-		
-
 		return new MailjetClient(pubKey, privKey);
 	}
 
@@ -64,9 +56,7 @@ public class MailJetDAO{
 		MailjetClient client = getAccessToSpecificClient();
 		MailjetRequest request = new MailjetRequest(Apikey.resource);
 		MailjetResponse response = client.get(request);
-		
 		JSONArray clientData = response.getData();
-
 		ApiClient[] apiClient = new Gson().fromJson(String.valueOf(clientData), ApiClient[].class);
 		
 		return apiClient[0];
@@ -89,9 +79,9 @@ public class MailJetDAO{
 
 		JSONArray clientData = response.getData();
 		MyException myException = new MyException();
-		myException.mailjetAttributEmpty(clientData, "SendStartAt");
-
-		return new Gson().fromJson(String.valueOf((clientData)), ApiCampaign[].class);
+		
+		JSONArray clientDataClean = myException.mailjetAttributEmpty(clientData, "SendStartAt"); 
+		return new Gson().fromJson(String.valueOf((clientDataClean)), ApiCampaign[].class);
 	}
 	
 	public ApiCampaign[]  getCampaignsForAYear(int year) throws MailjetSocketTimeoutException, MailjetException {
@@ -172,9 +162,9 @@ public class MailJetDAO{
 
 		JSONArray clientData = response.getData();
 		MyException myException = new MyException();
-		myException.mailjetAttributEmpty(clientData, "CampaignSendStartAt");
-
-		return new Gson().fromJson(String.valueOf((clientData)), ApiCampaignStatistic[].class);
+		
+		JSONArray clientDataClean = myException.mailjetAttributEmpty(clientData, "CampaignSendStartAt");
+		return new Gson().fromJson(String.valueOf((clientDataClean)), ApiCampaignStatistic[].class);
 	}
 
 	public ApiCampaignStatistic[] getCampaignsStatisticsForAYear(int year) throws MailjetSocketTimeoutException, MailjetException {

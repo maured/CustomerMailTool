@@ -1,8 +1,8 @@
 package exception;
 
-import com.sun.org.apache.bcel.internal.generic.NEW;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.restlet.engine.util.StringUtils;
 
 public class MyException
 {
@@ -24,30 +24,32 @@ public class MyException
 		return String.valueOf(obj);
 	}
 	
-	/*Ajouter des exceptions si Mailjet crash (TimeOut par exemple)*/
+	/*Add exceptions if Mailjet crash (TimeOut for exemple)*/
 	
 	/*This is for all campaign with an important Attribute with Null value*/
 	public JSONArray mailjetAttributEmpty(JSONArray clientData, String attributeName)
 	{
-		if (clientData != null)
-		{
-			for (int i = 0; i <= clientData.length()-1; i++)
-			{
-				//if (clientData.length() == 0)
-				/*checker le fait de remove le seul element et de me retrouver avec une liste vide*/
-
-				if ("".equals(clientData.getJSONObject(i).get(attributeName).toString()))
-				{
-					/*A implémenter plus tard : Créer un objet comme ApiCampaign qui récupère toutes les
-					campagnes qui possède un attribut CreatedAt qui a une valeur & avec l'attribut SendStartAt
-					SANS valeur. Le but sera d'avoir une liste de campagnes créées ET non envoyées*/
-					
-					clientData.remove(i);
-					if (i > 0)
-						i--;
+		/*A implémenter plus tard : Créer un objet comme ApiCampaign qui récupère toutes les
+		campagnes qui possèdent un attribut CreatedAt qui a une valeur et avec l'attribut SendStartAt
+		SANS valeur. Le but sera d'avoir une liste de campagnes créées ET non envoyées*/
+		
+			JSONArray tt; 
+			new JSONArray();
+			tt = this.cleanList(clientData, attributeName);
+		
+			return tt;
+	}
+		
+	private JSONArray cleanList(JSONArray list, String attributeName) {
+		JSONArray ret = new JSONArray();
+		
+		if (!StringUtils.isNullOrEmpty(String.valueOf(list))) {
+			for (int i = 0; i < list.length(); i++) {
+				if (!"".equals(list.getJSONObject(i).get(attributeName).toString())) {
+					ret.put(list.getJSONObject(i));
 				}
 			}
 		}
-		return clientData;
+		return ret;		
 	}
 }
