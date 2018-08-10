@@ -6,6 +6,7 @@ import dma.restconnexion.hub.HubCall;
 import dma.restconnexion.jwtsecurity.model.JwtAuthenticationToken;
 import dma.restconnexion.jwtsecurity.model.JwtUser;
 import dma.restconnexion.jwtsecurity.security.JwtGenerator;
+import exception.MyException;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,10 +23,6 @@ public class LoginController{
 	
 	private JwtGenerator jwtGenerator;
 	private static List<UserInfosConnexion> maList = new ArrayList<>();
-	
-	private String toJson(Object obj) {
-		return new Gson().toJson(obj);
-	}
 	
 	public LoginController(JwtGenerator jwtGenerator) {
 		this.jwtGenerator = jwtGenerator;
@@ -44,8 +41,7 @@ public class LoginController{
 			LoginController.maList.add(currentUser);
 			UserInfosConnexion.setListUserConnected(maList);
 		} catch (Exception e) {
-			e.printStackTrace();
-			
+			return new MyException().badCredentialsException();
 		}
 		
 		System.out.println(UserInfosConnexion.getListUserConnected().size());

@@ -8,6 +8,10 @@ import org.restlet.Response;
 import org.restlet.data.ChallengeScheme;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.ResourceException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import static sun.plugin2.util.PojoUtil.toJson;
 
 public class HubGetMailjetAPIToken {
 
@@ -46,11 +50,10 @@ public class HubGetMailjetAPIToken {
 			}
 		    result = response.getEntity().getText();
  		} catch (ResourceException e) {
-
-			throw new Exception("Error GETing SMTP information from hub:"+resource.getResponse());
+			return toJson(new ResponseEntity<String>("Unauthorized, wrong login or Error GETing SMTP information from hub", HttpStatus.UNAUTHORIZED));
 		} catch (IOException e) {
-
- 			throw new Exception("Error GETing SMTP information from hub:"+resource.getResponse());
+			return toJson(new ResponseEntity<String>("Unauthorized, wrong login or Error GETing SMTP information from hub", HttpStatus.UNAUTHORIZED));
+// 			throw new Exception("Error GETing SMTP information from hub:"+resource.getResponse());
  		} finally {
  			RestletClientHttpHandler.getHandler().closeClientResource(resource);
  		}
@@ -93,19 +96,5 @@ public class HubGetMailjetAPIToken {
 			sEncrypted = sEncrypted + (char) c;
 		}
 		return sEncrypted;
-	}
-
-	public static void main(String[] args) {
-
-//		HubGetMailjetAPIToken getMJtoken=new HubGetMailjetAPIToken();
-//		APIKeys keys;
-//		try {
-//			keys = getMJtoken.getMailjetApiKeys("hubafnor_prod", "gf245gre7zko");
-//			System.out.println("Mailjet API Keys:"+keys.publicKey +" / "+keys.privateKey);
-//		} catch (Exception e) {
-//			System.err.println("cannot get APIKeys:"+e.getMessage());
-//			e.printStackTrace(System.err);
-//		}
-
 	}
 }

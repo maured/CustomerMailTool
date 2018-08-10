@@ -7,7 +7,8 @@ import org.restlet.engine.util.StringUtils;
 public class MyException
 {
 	/*This method check if the user has correctly informed the right information of connexion */
-	public String badRequest() {
+	public String badRequest() 
+	{
 		JSONObject obj = new JSONObject();
 		obj.put("message", "You lost your connexion, or you didn't informed the keys. Please go to home page and make sur to write good information");
 
@@ -16,10 +17,16 @@ public class MyException
 	
 	public String anyDataException()
 	{
-		Error error = new Error();
-		
 		JSONObject obj = new JSONObject();
 		obj.put("errorStatus", 542);
+		
+		return String.valueOf(obj);
+	}
+	
+	public String badCredentialsException()
+	{
+		JSONObject obj = new JSONObject();
+		obj.put("message", "401. Unauthorized. Bad credentials");
 		
 		return String.valueOf(obj);
 	}

@@ -31,14 +31,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
 
-
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class CampaignController{
-
-	/*tant que toutes les methodes de l'api Mailjet vont être implémentées dans mailJetDAO, pour chaque nouvelles
-		routes je n'aurais plus qu'à appeler un mailJetDAO.maMethode().
-	*/
+	
 	// Instantiated at null for jwtsecurity 
 	private static MailJetDAO mailJetDAO = null;
 
@@ -64,15 +60,10 @@ public class CampaignController{
 		
 		String checkToken = header.getFirst(HttpHeaders.AUTHORIZATION);
 		
-		if (header != null) {
-			//substring(7)
-
+		if (header != null) 
+		{
 			String checkTokenTrunked = checkToken.substring(7);
-			
-			System.out.println(checkTokenTrunked); //remove later
-
 			List<UserInfosConnexion> listUserConnected = UserInfosConnexion.getListUserConnected();
-
 			boolean hasMatched = false;
 
 			try {
@@ -83,16 +74,12 @@ public class CampaignController{
 						if (listUserConnected.get(i).getTokenJWT().equals(checkTokenTrunked))
 						{
 							hasMatched = true;
-							//ici je regarde si l'expiration est bonne ou pas
-							// Si c'est expiré...
-
 							Date check = new Date();
 							if (check.compareTo(listUserConnected.get(i).getExpirationDate()) < 0)
 							{
 								HubCall hub = new HubCall();
 								listUserConnected.get(i).setLastPasswordReset(new Date());
-								listUserConnected.get(i).setExpirationDate(hub.calculateExpirationDate(
-										listUserConnected.get(i).getLastPasswordReset()));
+								listUserConnected.get(i).setExpirationDate(hub.calculateExpirationDate(listUserConnected.get(i).getLastPasswordReset()));
 								//If it's a match but the token isn't expired we give mailjet keys access
 								CampaignController.mailJetDAO = new MailJetDAO(listUserConnected.get(i));
 								//ApiClient apiClient = mailJetDAO.getClient(); // c'etait pour return le nom et l'ID
@@ -104,7 +91,7 @@ public class CampaignController{
 							{
 								listUserConnected.remove(i);
 								i--;
-								return toJson(new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED));
+								return "Unauthorized";
 							}
 						}
 					}
@@ -129,46 +116,51 @@ public class CampaignController{
 	public @ResponseBody String listCampaignByMonth(@RequestHeader HttpHeaders header)
 			throws MailjetSocketTimeoutException, MailjetException, ParseException {
 		
-		isTokenValid(header);
+		String str = isTokenValid(header);
 		
-		DateFormat sdt = new SimpleDateFormat("yyyy" + "-01-01'T'00:00:00");
-		String dateAsString = mailJetDAO.dateForFilter();
-		
-		Date dateYear = sdt.parse(dateAsString);
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(dateYear);
-		
-		ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignsForAYear(cal.get(Calendar.YEAR));
-		if (apiCampaigns.length == 0) //i check to prevent IndexOutOfboundException when we will be the 01/01/new year and any campaign were sent yet.
+		if (str.equals("Unauthorized"))
+			return toJson(new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED));
+		else
 		{
-			MyException myException = new MyException();
-			return myException.anyDataException();
-		}
-		ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignsStatisticsForAYear(cal.get(Calendar.YEAR));
+			DateFormat sdt = new SimpleDateFormat("yyyy" + "-01-01'T'00:00:00");
+			String dateAsString = mailJetDAO.dateForFilter();
 
-		ArrayList<Campaign> campaigns = new ArrayList<>();
-		YearData yearData = new YearData();
+			Date dateYear = sdt.parse(dateAsString);
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dateYear);
 
-		ApiClient apiClient = mailJetDAO.getClient();
-		Client client = new Client(apiClient);
-		yearData.setNameClient(client.getNameClient());
-		yearData.setClientID(client.getIdClient());
-		
-		for (ApiCampaign apiCampaign : apiCampaigns) {
-			Campaign campaign = new Campaign(apiCampaign);
-			ApiCampaignStatistic statistic = findStatisticFromDate(apiStatistics, campaign.Subject);
-
-			if (statistic != null) {
-				campaign.setProcessedCount(statistic.ProcessedCount);
-				campaign.setDeliveredCount(statistic.DeliveredCount);
+			ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignsForAYear(cal.get(Calendar.YEAR));
+			if (apiCampaigns.length == 0) //i check to prevent IndexOutOfboundException when we will be the 01/01/new year and any campaign were sent yet.
+			{
+				MyException myException = new MyException();
+				return myException.anyDataException();
 			}
-			campaigns.add(campaign);
-		}
-		CampaignSortedByMonth sortedByMonth = new CampaignSortedByMonth();
-		TreeMap<Integer, ArrayList<Campaign>> yearMap;
-		yearMap = sortedByMonth.getMapCampaign(campaigns);
-		
-		return toJson(new CampaignSortedByYear().getMyListYears(yearMap, yearData));
+			ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignsStatisticsForAYear(cal.get(Calendar.YEAR));
+
+			ArrayList<Campaign> campaigns = new ArrayList<>();
+			YearData yearData = new YearData();
+
+			ApiClient apiClient = mailJetDAO.getClient();
+			Client client = new Client(apiClient);
+			yearData.setNameClient(client.getNameClient());
+			yearData.setClientID(client.getIdClient());
+
+			for (ApiCampaign apiCampaign : apiCampaigns) {
+				Campaign campaign = new Campaign(apiCampaign);
+				ApiCampaignStatistic statistic = findStatisticFromDate(apiStatistics, campaign.Subject);
+
+				if (statistic != null) {
+					campaign.setProcessedCount(statistic.ProcessedCount);
+					campaign.setDeliveredCount(statistic.DeliveredCount);
+				}
+				campaigns.add(campaign);
+			}
+			CampaignSortedByMonth sortedByMonth = new CampaignSortedByMonth();
+			TreeMap<Integer, ArrayList<Campaign>> yearMap;
+			yearMap = sortedByMonth.getMapCampaign(campaigns);
+
+			return toJson(new CampaignSortedByYear().getMyListYears(yearMap, yearData));
+		}	
 	}
 
 	/* ------------------------------------------------------------------------------------------------------/
@@ -181,45 +173,50 @@ public class CampaignController{
 	
 	public @ResponseBody String listCampaignByMonth(@RequestHeader HttpHeaders header, @RequestBody GetDate pDate)
 			throws MailjetSocketTimeoutException, MailjetException, ParseException {
-		
-		isTokenValid(header);
-		
-		DateFormat sdt = new SimpleDateFormat("yyyy" + "-01-01'T'00:00:00");
-		String dateAsString = pDate.getDate();
-		
-		Date dateYear = sdt.parse(dateAsString);
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(dateYear);
-				
-		ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignsForAYear(cal.get(Calendar.YEAR));
-		// A break si c'est null au lieu de renvoyer un jsoin avec un message.
-		//sinon j'execute le reste des traitements.
-		if (apiCampaigns.length == 0)
-		{
-			MyException myException = new MyException();
-			return myException.anyDataException();
-		}
-		ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignsStatisticsForAYear(cal.get(Calendar.YEAR));
-		
-		ArrayList<Campaign> campaigns = new ArrayList<>();
-		YearData yearData = new YearData();
-		
-		for (ApiCampaign apiCampaign : apiCampaigns)
-		{
-			Campaign campaign = new Campaign(apiCampaign);
-			ApiCampaignStatistic statistic = findStatisticFromDate(apiStatistics, campaign.Subject);
 
-			if (statistic != null) {
-				campaign.setProcessedCount(statistic.ProcessedCount);
-				campaign.setDeliveredCount(statistic.DeliveredCount);
+		String str = isTokenValid(header);
+		
+		if (str.equals("Unauthorized"))
+			return toJson(new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED));
+		else
+		{
+			DateFormat sdt = new SimpleDateFormat("yyyy" + "-01-01'T'00:00:00");
+			String dateAsString = pDate.getDate();
+
+			Date dateYear = sdt.parse(dateAsString);
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dateYear);
+
+			ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignsForAYear(cal.get(Calendar.YEAR));
+			// A break si c'est null au lieu de renvoyer un jsoin avec un message.
+			//sinon j'execute le reste des traitements.
+			if (apiCampaigns.length == 0)
+			{
+				MyException myException = new MyException();
+				return myException.anyDataException();
 			}
-			campaigns.add(campaign);
-		}
+			ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignsStatisticsForAYear(cal.get(Calendar.YEAR));
 
-		CampaignSortedByMonth sortedByMonth = new CampaignSortedByMonth();
-		TreeMap<Integer, ArrayList<Campaign>> yearMap;
-		yearMap = sortedByMonth.getMapCampaign(campaigns);
-		
-		return toJson(new CampaignSortedByYear().getMyListYears(yearMap, yearData));
+			ArrayList<Campaign> campaigns = new ArrayList<>();
+			YearData yearData = new YearData();
+
+			for (ApiCampaign apiCampaign : apiCampaigns)
+			{
+				Campaign campaign = new Campaign(apiCampaign);
+				ApiCampaignStatistic statistic = findStatisticFromDate(apiStatistics, campaign.Subject);
+
+				if (statistic != null) {
+					campaign.setProcessedCount(statistic.ProcessedCount);
+					campaign.setDeliveredCount(statistic.DeliveredCount);
+				}
+				campaigns.add(campaign);
+			}
+
+			CampaignSortedByMonth sortedByMonth = new CampaignSortedByMonth();
+			TreeMap<Integer, ArrayList<Campaign>> yearMap;
+			yearMap = sortedByMonth.getMapCampaign(campaigns);
+
+			return toJson(new CampaignSortedByYear().getMyListYears(yearMap, yearData));
+		}	
 	}
  }
