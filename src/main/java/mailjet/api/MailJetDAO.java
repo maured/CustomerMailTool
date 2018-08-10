@@ -9,7 +9,6 @@ import com.mailjet.client.errors.MailjetSocketTimeoutException;
 import com.mailjet.client.resource.Apikey;
 import com.mailjet.client.resource.Campaign;
 import com.mailjet.client.resource.Campaignstatistics;
-import dma.restconnexion.InfoConnexionClient;
 import dma.restconnexion.UserInfosConnexion;
 import exception.MyException;
 import org.json.JSONArray;

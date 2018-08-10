@@ -1,7 +1,9 @@
 package dma.restconnexion.jwtsecurity.controller;
 
+import com.google.gson.Gson;
 import dma.restconnexion.UserInfosConnexion;
 import dma.restconnexion.hub.HubCall;
+import dma.restconnexion.jwtsecurity.model.JwtAuthenticationToken;
 import dma.restconnexion.jwtsecurity.model.JwtUser;
 import dma.restconnexion.jwtsecurity.security.JwtGenerator;
 import org.springframework.http.MediaType;
@@ -20,7 +22,11 @@ public class LoginController{
 	
 	private JwtGenerator jwtGenerator;
 	private static List<UserInfosConnexion> maList = new ArrayList<>();
-
+	
+	private String toJson(Object obj) {
+		return new Gson().toJson(obj);
+	}
+	
 	public LoginController(JwtGenerator jwtGenerator) {
 		this.jwtGenerator = jwtGenerator;
 	}
@@ -44,6 +50,6 @@ public class LoginController{
 		
 		System.out.println(UserInfosConnexion.getListUserConnected().size());
 		System.out.println(currentUser.getTokenJWT());
-		return currentUser.getTokenJWT();
+		return new Gson().toJson(new JwtAuthenticationToken(currentUser.getTokenJWT()));
 	}
 }
