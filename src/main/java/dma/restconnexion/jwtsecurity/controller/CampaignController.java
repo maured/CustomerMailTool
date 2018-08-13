@@ -72,6 +72,8 @@ public class CampaignController{
 					{
 						if (listUserConnected.get(i).getTokenJWT().equals(checkTokenTrunked))
 						{
+							System.out.println(listUserConnected + "Il existe dans la liste");
+							
 							hasMatched = true;
 							Date check = new Date();
 							if (check.compareTo(listUserConnected.get(i).getExpirationDate()) < 0)
@@ -90,11 +92,14 @@ public class CampaignController{
 							{
 								listUserConnected.remove(i);
 								i--;
+								System.out.println(listUserConnected + "JE l'ai supprimé");
 								return "tokenExpired";
 							}
 						}
 					}
 				}
+				else
+					return "tokenExpired";
 				//It can't be empty, exception would be handle before.
 			} catch (Exception e) {
 				System.err.println("cannot get APIKeys:" + e.getMessage());
@@ -187,7 +192,8 @@ public class CampaignController{
 			if (apiCampaigns.length == 0)
 			{
 //				ApiCampaign[] listEmpty = apiCampaigns;
-//				return new ResponseEntity<>(listEmpty);
+//				return new ResponseEntity<>(new );
+//				
 //				MyException myException = new MyException();
 //				return myException.anyDataException();
 			}
