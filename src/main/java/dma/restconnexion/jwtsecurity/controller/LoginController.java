@@ -1,13 +1,13 @@
 package dma.restconnexion.jwtsecurity.controller;
 
-import com.google.gson.Gson;
 import dma.restconnexion.UserInfosConnexion;
 import dma.restconnexion.hub.HubCall;
 import dma.restconnexion.jwtsecurity.model.JwtAuthenticationToken;
 import dma.restconnexion.jwtsecurity.model.JwtUser;
 import dma.restconnexion.jwtsecurity.security.JwtGenerator;
-import exception.MyException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +30,7 @@ public class LoginController{
 	
 	@RequestMapping(value = "/auth/login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE) // auth/login
 	@ResponseBody
-	public String generate(@RequestBody final JwtUser jwtUser) throws Exception {
+	public ResponseEntity<?> generate(@RequestBody final JwtUser jwtUser) throws Exception {
 
 		UserInfosConnexion currentUser = new UserInfosConnexion();
 		HubCall hubCall = new HubCall();
@@ -41,11 +41,11 @@ public class LoginController{
 			LoginController.maList.add(currentUser);
 			UserInfosConnexion.setListUserConnected(maList);
 		} catch (Exception e) {
-			return new MyException().badCredentialsException();
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 		
 		System.out.println(UserInfosConnexion.getListUserConnected().size());
 		System.out.println(currentUser.getTokenJWT());
-		return new Gson().toJson(new JwtAuthenticationToken(currentUser.getTokenJWT()));
+		return new ResponseEntity<>(new JwtAuthenticationToken(currentUser.getTokenJWT()), HttpStatus.OK);
 	}
 }

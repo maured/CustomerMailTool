@@ -12,7 +12,7 @@ public class HubCall{
 	{
 		Calendar calendar= GregorianCalendar.getInstance();
 		calendar.setTime(lastPasswordReset);
-		calendar.add(Calendar.MINUTE, 1);
+		calendar.add(Calendar.MINUTE, 2);
 		lastPasswordReset = calendar.getTime();
 		
 		return lastPasswordReset;

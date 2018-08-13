@@ -72,8 +72,6 @@ public class CampaignController{
 					{
 						if (listUserConnected.get(i).getTokenJWT().equals(checkTokenTrunked))
 						{
-							System.out.println(listUserConnected + "Il existe dans la liste");
-							
 							hasMatched = true;
 							Date check = new Date();
 							if (check.compareTo(listUserConnected.get(i).getExpirationDate()) < 0)
@@ -83,7 +81,6 @@ public class CampaignController{
 								listUserConnected.get(i).setExpirationDate(hub.calculateExpirationDate(listUserConnected.get(i).getLastPasswordReset()));
 								//If it's a match but the token isn't expired we give mailjet keys access
 								CampaignController.mailJetDAO = new MailJetDAO(listUserConnected.get(i));
-								//ApiClient apiClient = mailJetDAO.getClient(); // c'etait pour return le nom et l'ID
 
 								System.out.println(listUserConnected.get(i).getPublicK());//remove later
 								System.out.println(listUserConnected.get(i).getPrivateK()); //remove later
@@ -92,7 +89,6 @@ public class CampaignController{
 							{
 								listUserConnected.remove(i);
 								i--;
-								System.out.println(listUserConnected + "JE l'ai supprimé");
 								return "tokenExpired";
 							}
 						}
@@ -132,11 +128,10 @@ public class CampaignController{
 			cal.setTime(dateYear);
 
 			ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignsForAYear(cal.get(Calendar.YEAR));
+			
 			if (apiCampaigns.length == 0) //i check to prevent IndexOutOfboundException when we will be the 01/01/new year and any campaign were sent yet.
-			{
-				//MyException myException = new MyException();
-				//return myException.anyDataException();
-			}
+				return new ResponseEntity<>(new ApiCampaign[0], HttpStatus.NO_CONTENT);
+			
 			ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignsStatisticsForAYear(cal.get(Calendar.YEAR));
 
 			ArrayList<Campaign> campaigns = new ArrayList<>();
@@ -190,13 +185,7 @@ public class CampaignController{
 			// A break si c'est null au lieu de renvoyer un jsoin avec un message.
 			//sinon j'execute le reste des traitements.
 			if (apiCampaigns.length == 0)
-			{
-//				ApiCampaign[] listEmpty = apiCampaigns;
-//				return new ResponseEntity<>(new );
-//				
-//				MyException myException = new MyException();
-//				return myException.anyDataException();
-			}
+				return new ResponseEntity<>(new ApiCampaign[0], HttpStatus.NO_CONTENT);
 			ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignsStatisticsForAYear(cal.get(Calendar.YEAR));
 
 			ArrayList<Campaign> campaigns = new ArrayList<>();
