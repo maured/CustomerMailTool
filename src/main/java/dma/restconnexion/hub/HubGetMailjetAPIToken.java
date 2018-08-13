@@ -2,6 +2,8 @@ package dma.restconnexion.hub;
 
 import java.io.IOException;
 import java.util.Base64;
+
+import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.Response;
@@ -11,14 +13,16 @@ import org.restlet.resource.ResourceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import static sun.plugin2.util.PojoUtil.toJson;
-
 public class HubGetMailjetAPIToken {
 
 	public static final String mailjetApiKeysAPIUrl="https://e-deal.biz/service/getsmtpserverinfo";
 	public static final String TOKEN_SEPARATOR = "(separator)";
 	private static final String SCRAMBLINGKEY = "lFoQp3rBq0tPqsN4gps6iLbk9ZptApFkfj3kq1AP0tPqsN4gps6i";
 
+	private String toJson(Object obj) {
+		return new Gson().toJson(obj);
+	}
+	
 	public class APIKeys {
 		public String publicKey=null;
 		public String privateKey=null;
@@ -50,15 +54,16 @@ public class HubGetMailjetAPIToken {
 			}
 		    result = response.getEntity().getText();
  		} catch (ResourceException e) {
-			return toJson(new ResponseEntity<String>("Unauthorized, wrong login or Error GETing SMTP information from hub", HttpStatus.UNAUTHORIZED));
+			return toJson(new ResponseEntity<>("Unauthorized, wrong login or Error GETing SMTP information from hub", HttpStatus.UNAUTHORIZED));
 		} catch (IOException e) {
-			return toJson(new ResponseEntity<String>("Unauthorized, wrong login or Error GETing SMTP information from hub", HttpStatus.UNAUTHORIZED));
+			return toJson(new ResponseEntity<>("Unauthorized, wrong login or Error GETing SMTP information from hub", HttpStatus.UNAUTHORIZED));
 // 			throw new Exception("Error GETing SMTP information from hub:"+resource.getResponse());
  		} finally {
  			RestletClientHttpHandler.getHandler().closeClientResource(resource);
  		}
 
 	    return result;
+		
  	}
 
 	private String getAPITokenFromJSONResponse(String jsonResponse) throws JSONException {
