@@ -110,7 +110,7 @@ public class CampaignController{
 	This route is the core of the Sorted Data Page. It send back to the front all data sorted by month and 
 	years.
 */
-	@CrossOrigin(origins = "*", allowedHeaders = "*")
+	//@CrossOrigin(origins = "*", allowedHeaders = "*")
 	@RequestMapping(value = "/api/campaign-statistics", method = RequestMethod.GET)
 	@ResponseStatus(value = HttpStatus.OK)
 	public @ResponseBody String listCampaignByMonth(@RequestHeader HttpHeaders header)
@@ -167,7 +167,7 @@ public class CampaignController{
 		This one will be use to avoid the 1000 filter limitation. We will use some post to send back data
 		with the exact date that the user want.
 	*/
-	@CrossOrigin(origins = "*", allowedHeaders = "*")
+	//@CrossOrigin(origins = "*", allowedHeaders = "*")
 	@RequestMapping(value = "/api/campaign-statistics", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(value = HttpStatus.OK)
 	
