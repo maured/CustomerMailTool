@@ -8,7 +8,6 @@ import data.treatment.CampaignSortedByYear;
 import data.treatment.GetDate;
 import dma.restconnexion.UserInfosConnexion;
 import dma.restconnexion.hub.HubCall;
-import exception.MyException;
 import mailjet.Campaign;
 import mailjet.Client;
 import mailjet.api.ApiCampaign;
@@ -91,7 +90,7 @@ public class CampaignController{
 							{
 								listUserConnected.remove(i);
 								i--;
-								return "Unauthorized";
+								return "tokenExpired";
 							}
 						}
 					}
@@ -100,7 +99,7 @@ public class CampaignController{
 			} catch (Exception e) {
 				System.err.println("cannot get APIKeys:" + e.getMessage());
 				e.printStackTrace(System.err);
-				return toJson(new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED));
+				return "Unauthorized";
 			}
 		}
 		return "Token Authorized";
@@ -111,14 +110,13 @@ public class CampaignController{
 	years.
 */
 	@RequestMapping(value = "/api/campaign-statistics", method = RequestMethod.GET)
-	@ResponseStatus(value = HttpStatus.OK)
-	public @ResponseBody String listCampaignByMonth(@RequestHeader HttpHeaders header)
+	public @ResponseBody ResponseEntity<?> listCampaignByMonth(@RequestHeader HttpHeaders header)
 			throws MailjetSocketTimeoutException, MailjetException, ParseException {
 		
 		String str = isTokenValid(header);
 		
-		if (str.equals("Unauthorized"))
-			return toJson(new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED));
+		if ("Unauthorized".equals(str) || "tokenExpired".equals(str))
+			return new ResponseEntity<>(str, HttpStatus.UNAUTHORIZED);
 		else
 		{
 			DateFormat sdt = new SimpleDateFormat("yyyy" + "-01-01'T'00:00:00");
@@ -131,8 +129,8 @@ public class CampaignController{
 			ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignsForAYear(cal.get(Calendar.YEAR));
 			if (apiCampaigns.length == 0) //i check to prevent IndexOutOfboundException when we will be the 01/01/new year and any campaign were sent yet.
 			{
-				MyException myException = new MyException();
-				return myException.anyDataException();
+				//MyException myException = new MyException();
+				//return myException.anyDataException();
 			}
 			ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignsStatisticsForAYear(cal.get(Calendar.YEAR));
 
@@ -158,7 +156,7 @@ public class CampaignController{
 			TreeMap<Integer, ArrayList<Campaign>> yearMap;
 			yearMap = sortedByMonth.getMapCampaign(campaigns);
 
-			return toJson(new CampaignSortedByYear().getMyListYears(yearMap, yearData));
+			return new ResponseEntity<>(new CampaignSortedByYear().getMyListYears(yearMap, yearData), HttpStatus.OK);
 		}	
 	}
 
@@ -167,15 +165,13 @@ public class CampaignController{
 		with the exact date that the user want.
 	*/
 	@RequestMapping(value = "/api/campaign-statistics", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	@ResponseStatus(value = HttpStatus.OK)
-	
-	public @ResponseBody String listCampaignByMonth(@RequestHeader HttpHeaders header, @RequestBody GetDate pDate)
+	public @ResponseBody ResponseEntity<?> listCampaignByMonth(@RequestHeader HttpHeaders header, @RequestBody GetDate pDate)
 			throws MailjetSocketTimeoutException, MailjetException, ParseException {
 
 		String str = isTokenValid(header);
-		
-		if (str.equals("Unauthorized"))
-			return toJson(new ResponseEntity<String>("Unauthorized", HttpStatus.UNAUTHORIZED));
+
+		if ("Unauthorized".equals(str) || "tokenExpired".equals(str))
+			return new ResponseEntity<>(str, HttpStatus.UNAUTHORIZED);
 		else
 		{
 			DateFormat sdt = new SimpleDateFormat("yyyy" + "-01-01'T'00:00:00");
@@ -184,14 +180,16 @@ public class CampaignController{
 			Date dateYear = sdt.parse(dateAsString);
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(dateYear);
-
+			
 			ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignsForAYear(cal.get(Calendar.YEAR));
 			// A break si c'est null au lieu de renvoyer un jsoin avec un message.
 			//sinon j'execute le reste des traitements.
 			if (apiCampaigns.length == 0)
 			{
-				MyException myException = new MyException();
-				return myException.anyDataException();
+//				ApiCampaign[] listEmpty = apiCampaigns;
+//				return new ResponseEntity<>(listEmpty);
+//				MyException myException = new MyException();
+//				return myException.anyDataException();
 			}
 			ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignsStatisticsForAYear(cal.get(Calendar.YEAR));
 
@@ -214,7 +212,7 @@ public class CampaignController{
 			TreeMap<Integer, ArrayList<Campaign>> yearMap;
 			yearMap = sortedByMonth.getMapCampaign(campaigns);
 
-			return toJson(new CampaignSortedByYear().getMyListYears(yearMap, yearData));
+			return new ResponseEntity<>(new CampaignSortedByYear().getMyListYears(yearMap, yearData), HttpStatus.OK);
 		}	
 	}
  }
