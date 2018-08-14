@@ -57,19 +57,15 @@ public class HubGetMailjetAPIToken {
 			return toJson(new ResponseEntity<>("Unauthorized, wrong login or Error GETing SMTP information from hub", HttpStatus.UNAUTHORIZED));
 		} catch (IOException e) {
 			return toJson(new ResponseEntity<>("Unauthorized, wrong login or Error GETing SMTP information from hub", HttpStatus.UNAUTHORIZED));
-// 			throw new Exception("Error GETing SMTP information from hub:"+resource.getResponse());
  		} finally {
  			RestletClientHttpHandler.getHandler().closeClientResource(resource);
  		}
-
 	    return result;
-		
  	}
 
 	private String getAPITokenFromJSONResponse(String jsonResponse) throws JSONException {
 		JSONObject jsonObj=new JSONObject(jsonResponse);
 		return jsonObj.getString("token");
-
 	}
 
 	private APIKeys unScrambleApiKeys(String scrambledKeys) throws Exception {

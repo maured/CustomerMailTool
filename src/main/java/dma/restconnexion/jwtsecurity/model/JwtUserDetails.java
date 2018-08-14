@@ -12,12 +12,11 @@ public class JwtUserDetails implements UserDetails{
 	private String token;
 	private Collection<? extends GrantedAuthority> authorities;
 
-	public JwtUserDetails(String login, String password, String token) //, List<GrantedAuthority> grantedAuthorities 
+	public JwtUserDetails(String login, String password, String token)
 	{
 		this.login = login;
 		this.password = password;
 		this.token = token;
-		//this.authorities = grantedAuthorities;
 	}
 
 	@Override public Collection<? extends GrantedAuthority> getAuthorities() {

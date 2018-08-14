@@ -100,5 +100,4 @@ public class ApiClient {
 	public void setSkipSpamd(Integer skipSpamd) {
 		this.Skipspamd = skipSpamd;
 	}
-
 }

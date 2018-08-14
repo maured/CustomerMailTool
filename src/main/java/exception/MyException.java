@@ -36,8 +36,8 @@ public class MyException
 	/*This is for all campaign with an important Attribute with Null value*/
 	public JSONArray mailjetAttributEmpty(JSONArray clientData, String attributeName)
 	{
-		/*A implémenter plus tard : Créer un objet comme ApiCampaign qui récupère toutes les
-		campagnes qui possèdent un attribut CreatedAt qui a une valeur et avec l'attribut SendStartAt
+		/*A implémenter plus tard : Créer un objet comme ApiCampaign, qui récupère toutes les
+		campagnes qui possèdent un attribut : CreatedAt qui possède une valeur ET avec l'attribut : SendStartAt
 		SANS valeur. Le but sera d'avoir une liste de campagnes créées ET non envoyées*/
 		
 			JSONArray tt; 
