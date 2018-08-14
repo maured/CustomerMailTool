@@ -36,10 +36,42 @@ public class LoginController{
 		HubCall hubCall = new HubCall();
 		
 		try {
-			currentUser.setTokenJWT(jwtGenerator.generate(jwtUser));
-			hubCall.hubConfirmationConnexion(jwtUser, currentUser);
-			LoginController.maList.add(currentUser);
-			UserInfosConnexion.setListUserConnected(maList);
+			if (UserInfosConnexion.listUserConnected != null)
+			{
+				currentUser.setTokenJWT(jwtGenerator.generate(jwtUser));
+				hubCall.hubConfirmationConnexion(jwtUser, currentUser);
+				for (int i = 0; i < UserInfosConnexion.listUserConnected.size(); i++)
+				{
+					if (!currentUser.getTokenJWT().equals(UserInfosConnexion.listUserConnected.get(i).getTokenJWT()))
+					{
+						if (i == UserInfosConnexion.listUserConnected.size() - 1)
+						{
+							LoginController.maList.add(currentUser);
+							UserInfosConnexion.setListUserConnected(maList);
+							break;
+						}
+						else
+							continue;	
+					}
+					else
+					{
+						UserInfosConnexion.listUserConnected.remove(i);
+						i--;
+					}
+				}
+				if (UserInfosConnexion.listUserConnected.isEmpty())
+				{
+					LoginController.maList.add(currentUser);
+					UserInfosConnexion.setListUserConnected(maList);
+				}
+			}
+			else
+			{
+				currentUser.setTokenJWT(jwtGenerator.generate(jwtUser));
+				hubCall.hubConfirmationConnexion(jwtUser, currentUser);
+				LoginController.maList.add(currentUser);
+				UserInfosConnexion.setListUserConnected(maList);
+			}
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
