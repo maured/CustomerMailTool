@@ -127,6 +127,9 @@ public class CampaignController{
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(dateYear);
 
+			ApiClient apiClient = mailJetDAO.getClient();
+			Client client = new Client(apiClient);
+			
 			ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignsForAYear(cal.get(Calendar.YEAR));
 			
 			if (apiCampaigns.length == 0) //i check to prevent IndexOutOfboundException when we will be the 01/01/new year and any campaign were sent yet.
@@ -136,9 +139,7 @@ public class CampaignController{
 
 			ArrayList<Campaign> campaigns = new ArrayList<>();
 			YearData yearData = new YearData();
-
-			ApiClient apiClient = mailJetDAO.getClient();
-			Client client = new Client(apiClient);
+			
 			yearData.setNameClient(client.getNameClient());
 			yearData.setClientID(client.getIdClient());
 
