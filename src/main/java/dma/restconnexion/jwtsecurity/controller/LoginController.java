@@ -30,7 +30,7 @@ public class LoginController{
 	
 	@RequestMapping(value = "/auth/login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE) // auth/login
 	@ResponseBody
-	public ResponseEntity<?> generate(@RequestBody final JwtUser jwtUser) throws Exception {
+	public ResponseEntity<?> generateUserToken(@RequestBody final JwtUser jwtUser) throws Exception {
 
 		UserInfosConnexion currentUser = new UserInfosConnexion();
 		HubCall hubCall = new HubCall();

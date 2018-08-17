@@ -1,6 +1,5 @@
 package dma.restconnexion.jwtsecurity.controller;
 
-import com.google.gson.Gson;
 import com.mailjet.client.errors.MailjetException;
 import com.mailjet.client.errors.MailjetSocketTimeoutException;
 import data.treatment.CampaignSortedByMonth;
@@ -15,6 +14,7 @@ import mailjet.api.ApiCampaignStatistic;
 import mailjet.api.ApiClient;
 import mailjet.api.MailJetDAO;
 import mailjet.details.per.date.YearData;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -42,9 +42,9 @@ public class CampaignController{
 
 	}
 
-	private String toJson(Object obj) {
-		return new Gson().toJson(obj);
-	}
+//	private String toJson(Object obj) {
+//		return new Gson().toJson(obj);
+//	}
 
 	private ApiCampaignStatistic findStatisticFromDate(ApiCampaignStatistic[] statistics, String subject) {
 		for (ApiCampaignStatistic statistic : statistics) {
@@ -96,10 +96,8 @@ public class CampaignController{
 				}
 				else
 					return "tokenExpired";
-				//It can't be empty, exception would be handle before.
 			} catch (Exception e) {
-				System.err.println("cannot get APIKeys:" + e.getMessage());
-				e.printStackTrace(System.err);
+//				System.err.println("cannot get APIKeys:" + e.getMessage());
 				return "Unauthorized";
 			}
 		}
@@ -117,7 +115,11 @@ public class CampaignController{
 		String str = isTokenValid(header);
 		
 		if ("Unauthorized".equals(str) || "tokenExpired".equals(str))
-			return new ResponseEntity<>(str, HttpStatus.UNAUTHORIZED);
+		{
+			JSONObject r= new JSONObject();
+			r.put("message", str);
+			return new ResponseEntity<>(r.toString(), HttpStatus.UNAUTHORIZED);
+		}
 		else
 		{
 			DateFormat sdt = new SimpleDateFormat("yyyy" + "-01-01'T'00:00:00");
@@ -172,7 +174,12 @@ public class CampaignController{
 		String str = isTokenValid(header);
 
 		if ("Unauthorized".equals(str) || "tokenExpired".equals(str))
-			return new ResponseEntity<>(str, HttpStatus.UNAUTHORIZED);
+		{
+			JSONObject r= new JSONObject();
+			r.put("message", str);
+			return new ResponseEntity<>(r.toString(), HttpStatus.UNAUTHORIZED);
+		}
+			
 		else
 		{
 			DateFormat sdt = new SimpleDateFormat("yyyy" + "-01-01'T'00:00:00");
