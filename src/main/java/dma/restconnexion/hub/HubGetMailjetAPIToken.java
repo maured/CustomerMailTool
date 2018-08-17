@@ -2,7 +2,6 @@ package dma.restconnexion.hub;
 
 import java.io.IOException;
 import java.util.Base64;
-
 import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -42,10 +42,6 @@ public class CampaignController{
 
 	}
 
-//	private String toJson(Object obj) {
-//		return new Gson().toJson(obj);
-//	}
-
 	private ApiCampaignStatistic findStatisticFromDate(ApiCampaignStatistic[] statistics, String subject) {
 		for (ApiCampaignStatistic statistic : statistics) {
 			if (statistic.CampaignSubject.compareTo(subject) == 0) { /* 0 means it's equal*/

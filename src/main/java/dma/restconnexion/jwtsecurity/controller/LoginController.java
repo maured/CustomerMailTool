@@ -34,11 +34,14 @@ public class LoginController{
 
 		UserInfosConnexion currentUser = new UserInfosConnexion();
 		HubCall hubCall = new HubCall();
+
+		System.out.println(jwtUser.getLogin());
+		System.out.println(jwtUser.getPassword());
 		
 		try {
 			if (UserInfosConnexion.listUserConnected != null)
 			{
-				currentUser.setTokenJWT(jwtGenerator.generate(jwtUser));
+				currentUser.setTokenJWT(jwtGenerator.generate());
 				hubCall.hubConfirmationConnexion(jwtUser, currentUser);
 				for (int i = 0; i < UserInfosConnexion.listUserConnected.size(); i++)
 				{
@@ -67,7 +70,7 @@ public class LoginController{
 			}
 			else
 			{
-				currentUser.setTokenJWT(jwtGenerator.generate(jwtUser));
+				currentUser.setTokenJWT(jwtGenerator.generate());
 				hubCall.hubConfirmationConnexion(jwtUser, currentUser);
 				LoginController.maList.add(currentUser);
 				UserInfosConnexion.setListUserConnected(maList);

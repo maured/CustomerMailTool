@@ -1,16 +1,9 @@
 package dma.restconnexion.jwtsecurity.security;
 
-import dma.restconnexion.jwtsecurity.model.JwtUser;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Clock;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.impl.DefaultClock;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.util.Date;
-import java.util.function.Function;
 
 @Component
 public class JwtGenerator{
@@ -18,14 +11,13 @@ public class JwtGenerator{
 	@Value(value = "${jwt.secret}")
 	private String secret;
 	
-	public String generate(JwtUser jwtUser) {
-		
-		Claims claims = Jwts.claims()
-				.setSubject(jwtUser.getLogin());
-		claims.put("password", jwtUser.getPassword());
+	public String generate() {
+
+		//I generate a random string to avoid to send login and password of user.
+		String str = Long.toHexString(Double.doubleToLongBits(Math.random()));
 		
 		return Jwts.builder()
-				.setClaims(claims)
+				.setPayload(str) //That's why i use Payload and not Claims.
 				.signWith(SignatureAlgorithm.HS512, secret)
 				.compact();
 	}

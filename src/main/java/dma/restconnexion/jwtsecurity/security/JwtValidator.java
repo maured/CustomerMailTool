@@ -1,7 +1,5 @@
 package dma.restconnexion.jwtsecurity.security;
 
-import dma.restconnexion.jwtsecurity.model.JwtUser;
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -12,21 +10,21 @@ public class JwtValidator {
 	@Value(value = "${jwt.secret}")
 	public String secret;
 	
-	public JwtUser validate(String token) 
+	public String validate(String token) 
 	{
-		JwtUser jwtUser = null;
 		try {
-			Claims body = Jwts.parser()
+			String body = Jwts.parser()
 					.setSigningKey(secret)
-					.parseClaimsJws(token)
+					.parsePlaintextJws(token)
 					.getBody();
-			jwtUser = new JwtUser();
-			jwtUser.setLogin(body.getSubject());
-			jwtUser.setPassword((String) body.get("password"));
+			if (body != null)
+				return "Body ok";
+			else
+				return "Body missing";
 		}
 		catch(Exception e) {
 			System.out.println(e);
+			return "Body missing";
 		}
-		return jwtUser;
 	}
 }
