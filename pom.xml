@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.edeal.customermailtool</groupId>
-    <artifactId>simple-rest-example</artifactId>
+    <artifactId>customer-mail-tool</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>simple-rest-example</name>
-    <description>Demo project for Spring Boot</description>
+    <name>customer-mail-tool</name>
+    <description>Project for E-deal</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>

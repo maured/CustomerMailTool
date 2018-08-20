@@ -64,7 +64,6 @@ public class RestletClientHttpHandler {
 					logger.error("Error stopping Restlet/HTTPClient client", var4);
 				}
 			}
-
 		}
 	}
 
@@ -75,7 +74,6 @@ public class RestletClientHttpHandler {
 		} catch (Exception var2) {
 			logger.error("Error stopping Restlet/HTTPClient client", var2);
 		}
-
 		super.finalize();
 	}
 }

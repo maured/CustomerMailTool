@@ -1,10 +1,11 @@
 package dma.restconnexion.jwtsecurity.controller;
 
-import dma.restconnexion.UserInfosConnexion;
+import dma.restconnexion.jwtsecurity.model.UserInfosConnexion;
 import dma.restconnexion.hub.HubCall;
 import dma.restconnexion.jwtsecurity.model.JwtAuthenticationToken;
 import dma.restconnexion.jwtsecurity.model.JwtUser;
 import dma.restconnexion.jwtsecurity.security.JwtGenerator;
+import logger.MyLogger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,15 +29,15 @@ public class LoginController{
 		this.jwtGenerator = jwtGenerator;
 	}
 	
-	@RequestMapping(value = "/auth/login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE) // auth/login
+	@RequestMapping(value = "/auth/login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> generateUserToken(@RequestBody final JwtUser jwtUser) throws Exception {
-
+		MyLogger logger = new MyLogger();
 		UserInfosConnexion currentUser = new UserInfosConnexion();
 		HubCall hubCall = new HubCall();
-
-		System.out.println(jwtUser.getLogin());
-		System.out.println(jwtUser.getPassword());
+		
+		logger.infoLevel("User login recovered : " + jwtUser.getLogin());
+		logger.infoLevel("User password recovered : " + jwtUser.getPassword());
 		
 		try {
 			if (UserInfosConnexion.listUserConnected != null)
@@ -79,8 +80,9 @@ public class LoginController{
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 		
-		System.out.println(UserInfosConnexion.getListUserConnected().size());
-		System.out.println(currentUser.getTokenJWT());
+		logger.infoLevel("Number of user connected at the same time : " + UserInfosConnexion.getListUserConnected().size());
+		logger.infoLevel("Token recovered : " + currentUser.getTokenJWT());
+		
 		return new ResponseEntity<>(new JwtAuthenticationToken(currentUser.getTokenJWT()), HttpStatus.OK);
 	}
 }

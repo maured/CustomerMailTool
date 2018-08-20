@@ -3,6 +3,7 @@ package dma.restconnexion.hub;
 import java.io.IOException;
 import java.util.Base64;
 import com.google.gson.Gson;
+import logger.MyLogger;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.Response;
@@ -14,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 
 public class HubGetMailjetAPIToken {
 
-	public static final String mailjetApiKeysAPIUrl="https://e-deal.biz/service/getsmtpserverinfo";
+	public static final String mailjetApiKeysAPIUrl = "https://e-deal.biz/service/getsmtpserverinfo";
 	public static final String TOKEN_SEPARATOR = "(separator)";
 	private static final String SCRAMBLINGKEY = "lFoQp3rBq0tPqsN4gps6iLbk9ZptApFkfj3kq1AP0tPqsN4gps6i";
 
@@ -23,8 +24,8 @@ public class HubGetMailjetAPIToken {
 	}
 	
 	public class APIKeys {
-		public String publicKey=null;
-		public String privateKey=null;
+		public String publicKey = null;
+		public String privateKey = null;
 
 		public APIKeys(String publicK,String privateK ) {
 			this.publicKey=publicK;
@@ -35,8 +36,10 @@ public class HubGetMailjetAPIToken {
 	public HubGetMailjetAPIToken() {
 
 	}
+	
 	public APIKeys getMailjetApiKeys(String hubLogin, String hubPassword) throws Exception {
-		String jsonResponse=callHubMailjetApiKeys(hubLogin, hubPassword);
+		String jsonResponse = callHubMailjetApiKeys(hubLogin, hubPassword);
+		
 		return unScrambleApiKeys(getAPITokenFromJSONResponse(jsonResponse));
 	}
 
@@ -63,28 +66,28 @@ public class HubGetMailjetAPIToken {
  	}
 
 	private String getAPITokenFromJSONResponse(String jsonResponse) throws JSONException {
-		JSONObject jsonObj=new JSONObject(jsonResponse);
+		JSONObject jsonObj = new JSONObject(jsonResponse);
 		return jsonObj.getString("token");
 	}
 
 	private APIKeys unScrambleApiKeys(String scrambledKeys) throws Exception {
-
+		MyLogger logger = new MyLogger();
 		String unScrambledApiKeys = unScramble(scrambledKeys);
 		int separatorPos = unScrambledApiKeys.indexOf(TOKEN_SEPARATOR);
-		String apiPublicKey=unScrambledApiKeys.substring(0, separatorPos);
-		String apiPrivateKey= unScrambledApiKeys.substring(separatorPos + TOKEN_SEPARATOR.length(), unScrambledApiKeys.length());
-		if (apiPublicKey==null || apiPrivateKey==null) {
+		String apiPublicKey = unScrambledApiKeys.substring(0, separatorPos);
+		String apiPrivateKey = unScrambledApiKeys.substring(separatorPos + TOKEN_SEPARATOR.length(), unScrambledApiKeys.length());
+		if (apiPublicKey == null || apiPrivateKey==null) {
+			logger.errorLevel("API Keys are null");
 			throw new Exception("API Keys are null");
 		}
-		APIKeys apiKeys=new APIKeys(apiPublicKey,apiPrivateKey);
+		APIKeys apiKeys = new APIKeys(apiPublicKey,apiPrivateKey);
 		return apiKeys;
-
 	}
 
 	private String unScramble(String toUnscramble) {
 		String scrambleKey = SCRAMBLINGKEY;
-
 		String b64 = new String(Base64.getDecoder().decode(toUnscramble));
+		
 		return xorObfuscate(b64, scrambleKey);
 	}
 

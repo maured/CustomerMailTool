@@ -2,8 +2,8 @@ package mailjet;
 
 import mailjet.api.ApiClient;
 
-public class Client {
-
+public class Client
+{
     private String Name;
 
     private String Id;

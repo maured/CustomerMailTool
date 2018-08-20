@@ -2,6 +2,7 @@ package dma.restconnexion.jwtsecurity.security;
 
 import dma.restconnexion.jwtsecurity.model.JwtAuthenticationToken;
 import dma.restconnexion.jwtsecurity.model.JwtUserDetails;
+import logger.MyLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
@@ -24,12 +25,13 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
 	@Override protected UserDetails retrieveUser(String username,
 			UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken)
 			throws AuthenticationException {
-		
+		MyLogger logger = new MyLogger();
 		JwtAuthenticationToken jwtAuthenticationToken = (JwtAuthenticationToken) usernamePasswordAuthenticationToken;
 		String token = jwtAuthenticationToken.getToken();
 		String str = validator.validate(token);
 		
 		if (str.equals("Body missing")) {
+			logger.errorLevel("JWT token is incorrect");
 			throw new RuntimeException("JWT token is incorrect");
 		}
 		return (new JwtUserDetails());

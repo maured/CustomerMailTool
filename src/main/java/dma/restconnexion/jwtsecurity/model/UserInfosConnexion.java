@@ -1,4 +1,4 @@
-package dma.restconnexion;
+package dma.restconnexion.jwtsecurity.model;
 
 import java.util.Date;
 import java.util.List;

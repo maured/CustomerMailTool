@@ -5,8 +5,9 @@ import com.mailjet.client.errors.MailjetSocketTimeoutException;
 import data.treatment.CampaignSortedByMonth;
 import data.treatment.CampaignSortedByYear;
 import data.treatment.GetDate;
-import dma.restconnexion.UserInfosConnexion;
+import dma.restconnexion.jwtsecurity.model.UserInfosConnexion;
 import dma.restconnexion.hub.HubCall;
+import logger.MyLogger;
 import mailjet.Campaign;
 import mailjet.Client;
 import mailjet.api.ApiCampaign;
@@ -42,7 +43,7 @@ public class CampaignController{
 
 	}
 
-	private ApiCampaignStatistic findStatisticFromDate(ApiCampaignStatistic[] statistics, String subject) {
+	private ApiCampaignStatistic findStatisticFromSubject(ApiCampaignStatistic[] statistics, String subject) {
 		for (ApiCampaignStatistic statistic : statistics) {
 			if (statistic.CampaignSubject.compareTo(subject) == 0) { /* 0 means it's equal*/
 				return statistic;
@@ -52,12 +53,13 @@ public class CampaignController{
 	}
 
 	private String isTokenValid(HttpHeaders header) {
-		
+		MyLogger logger = new MyLogger();
 		String checkToken = header.getFirst(HttpHeaders.AUTHORIZATION);
 		
 		if (header != null) 
 		{
-			String checkTokenTrunked = checkToken.substring(7);
+			// 7 = Bearer[space]
+			String checkTokenTrunked = checkToken.substring(7);//i keep just the token.  
 			List<UserInfosConnexion> listUserConnected = UserInfosConnexion.getListUserConnected();
 			boolean hasMatched = false;
 
@@ -70,16 +72,17 @@ public class CampaignController{
 						{
 							hasMatched = true;
 							Date check = new Date();
-							if (check.compareTo(listUserConnected.get(i).getExpirationDate()) < 0)
+		//i check if the date of the asked request is inferior than the expirationDate calculated before.
+							if (check.compareTo(listUserConnected.get(i).getExpirationDate()) < 0) 
 							{
 								HubCall hub = new HubCall();
 								listUserConnected.get(i).setLastPasswordReset(new Date());
 								listUserConnected.get(i).setExpirationDate(hub.calculateExpirationDate(listUserConnected.get(i).getLastPasswordReset()));
 								//If it's a match but the token isn't expired we give mailjet keys access
 								CampaignController.mailJetDAO = new MailJetDAO(listUserConnected.get(i));
-
-								System.out.println(listUserConnected.get(i).getPublicK());//remove later
-								System.out.println(listUserConnected.get(i).getPrivateK()); //remove later
+								
+								logger.infoLevel("Public key recovered : " + listUserConnected.get(i).getPublicK());
+								logger.infoLevel("Private key recovered : " + listUserConnected.get(i).getPrivateK());
 							}
 							else
 							{
@@ -90,10 +93,12 @@ public class CampaignController{
 						}
 					}
 				}
-				else
+//i set always a user in the list when he is logging in (LoginController). If the list isEmpty it means that
+//the user try to get access to /api/campaign-statistics without any logs.			
+				else 
 					return "tokenExpired";
 			} catch (Exception e) {
-//				System.err.println("cannot get APIKeys:" + e.getMessage());
+				logger.errorLevel("cannot get APIKeys:" + e.getMessage());
 				return "Unauthorized";
 			}
 		}
@@ -118,32 +123,38 @@ public class CampaignController{
 		}
 		else
 		{
+			//i assign the date for the get in order to get the Current Year
 			DateFormat sdt = new SimpleDateFormat("yyyy" + "-01-01'T'00:00:00");
 			String dateAsString = mailJetDAO.dateForFilter();
-
 			Date dateYear = sdt.parse(dateAsString);
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(dateYear);
 
+			//i make my first Mailjet call to get client's Name and client's ID value. 
 			ApiClient apiClient = mailJetDAO.getClient();
 			Client client = new Client(apiClient);
 			
+			//i make my multiple campaign calls and i stock them in an array of campaigns. 
 			ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignsForAYear(cal.get(Calendar.YEAR));
 			
 			if (apiCampaigns.length == 0) //i check to prevent IndexOutOfboundException when we will be the 01/01/new year and any campaign were sent yet.
 				return new ResponseEntity<>(new ApiCampaign[0], HttpStatus.NO_CONTENT);
 			
+			//i do the same thing here for campaignstatistics instead of campaign. 
 			ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignsStatisticsForAYear(cal.get(Calendar.YEAR));
 
 			ArrayList<Campaign> campaigns = new ArrayList<>();
 			YearData yearData = new YearData();
 			
+			//i set the Name and the ID. 
 			yearData.setNameClient(client.getNameClient());
 			yearData.setClientID(client.getIdClient());
 
+			//i concat the two last calls in an array of campaign(Here i'm talking about my custom campaign,
+			// with values i want from the two other)
 			for (ApiCampaign apiCampaign : apiCampaigns) {
 				Campaign campaign = new Campaign(apiCampaign);
-				ApiCampaignStatistic statistic = findStatisticFromDate(apiStatistics, campaign.Subject);
+				ApiCampaignStatistic statistic = findStatisticFromSubject(apiStatistics, campaign.Subject);
 
 				if (statistic != null) {
 					campaign.setProcessedCount(statistic.ProcessedCount);
@@ -186,8 +197,6 @@ public class CampaignController{
 			cal.setTime(dateYear);
 			
 			ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignsForAYear(cal.get(Calendar.YEAR));
-			// A break si c'est null au lieu de renvoyer un jsoin avec un message.
-			//sinon j'execute le reste des traitements.
 			if (apiCampaigns.length == 0)
 				return new ResponseEntity<>(new ApiCampaign[0], HttpStatus.NO_CONTENT);
 			ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignsStatisticsForAYear(cal.get(Calendar.YEAR));
@@ -198,7 +207,7 @@ public class CampaignController{
 			for (ApiCampaign apiCampaign : apiCampaigns)
 			{
 				Campaign campaign = new Campaign(apiCampaign);
-				ApiCampaignStatistic statistic = findStatisticFromDate(apiStatistics, campaign.Subject);
+				ApiCampaignStatistic statistic = findStatisticFromSubject(apiStatistics, campaign.Subject);
 
 				if (statistic != null) {
 					campaign.setProcessedCount(statistic.ProcessedCount);

@@ -3,7 +3,6 @@ package data.treatment;
 import mailjet.Campaign;
 import mailjet.details.per.date.MonthData;
 import mailjet.details.per.date.YearData;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;

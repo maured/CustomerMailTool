@@ -1,6 +1,7 @@
 package dma.restconnexion.jwtsecurity.security;
 
 import io.jsonwebtoken.Jwts;
+import logger.MyLogger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,7 @@ public class JwtValidator {
 	
 	public String validate(String token) 
 	{
+		MyLogger logger = new MyLogger();
 		try {
 			String body = Jwts.parser()
 					.setSigningKey(secret)
@@ -23,7 +25,7 @@ public class JwtValidator {
 				return "Body missing";
 		}
 		catch(Exception e) {
-			System.out.println(e);
+			logger.errorLevel("Error in token validation : " + e);
 			return "Body missing";
 		}
 	}

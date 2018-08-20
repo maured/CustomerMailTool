@@ -1,13 +1,25 @@
 package logger;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MyLogger {
 	
-	public void testlog() 
+	private static final Logger LOGGER = LogManager.getLogger(MyLogger.class);
+	
+	public void infoLevel(String str) 
 	{
-		Logger logger = Logger.getLogger("Logger très simple");
-		logger.log(Level.INFO, "Test de logger");
+		LOGGER.info(str);
 	}
+
+//	public void debugLevel(String str)
+//	{
+//		LOGGER.debug(str);
+//	}
+
+	public void errorLevel(String str)
+	{
+		LOGGER.error(str);
+	}
+	
 }
