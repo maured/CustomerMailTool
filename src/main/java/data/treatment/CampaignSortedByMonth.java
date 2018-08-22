@@ -1,8 +1,6 @@
 package data.treatment;
 
 import mailjet.Campaign;
-import org.springframework.boot.jta.narayana.NarayanaBeanFactoryPostProcessor;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -56,10 +54,6 @@ public class CampaignSortedByMonth{
 				/*In case where many campaign have a Sending Date different from their own creation date.*/
 					if(monthY != month) //MonthY means CreatedAt date. Month is always = to Sending date. 
 					{
-						//si c'est la première on put la campgne dans la HashTable, Si c'est la seconde ou
-						// plus il faut clone / addAll / put / vider et ajouter la campagne en cour d'itération
-						
-						/* Not tested yet but it works below */
 						/*In case where we have an already existing list previously mounted, we want save
 						 values and add the new others as a result.*/
 						if (mapCampaign.containsKey(lastMonth))

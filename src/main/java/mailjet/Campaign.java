@@ -14,7 +14,7 @@ public class Campaign {
 
     public Date SendingDate;
     
-    public Integer SpamScoreAssassin;
+    public float SpamScoreAssassin;
     
     /* ProcessedCount & DeliveredCount comes from another call in mailjet API.*/ 
     public Integer ProcessedCount;

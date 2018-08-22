@@ -1,25 +1,24 @@
 package dma.restconnexion.jwtsecurity.security;
 
-import dma.restconnexion.jwtsecurity.model.JwtUser;
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class JwtGenerator{
 
-	public String generate(JwtUser jwtUser) {
-		//date d'expiration = .setExpiration(date)
-		
-		Claims claims = Jwts.claims()
-				.setSubject(jwtUser.getUserName());
-		claims.put("password", jwtUser.getPassword());
-		claims.put("role", jwtUser.getRole());
+	@Value(value = "${jwt.secret}")
+	private String secret;
+	
+	public String generate() {
+
+		//I generate a random string to avoid to send login and password of user.
+		String str = Long.toHexString(Double.doubleToLongBits(Math.random()));
 		
 		return Jwts.builder()
-				.setClaims(claims)
-				.signWith(SignatureAlgorithm.HS512, "test")
+				.setPayload(str) //That's why i use Payload and not Claims.
+				.signWith(SignatureAlgorithm.HS512, secret)
 				.compact();
 	}
 }

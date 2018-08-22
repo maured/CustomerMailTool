@@ -1,179 +1,88 @@
 package dma.restconnexion.jwtsecurity.controller;
 
-import com.google.gson.Gson;
-import com.mailjet.client.errors.MailjetException;
-import com.mailjet.client.errors.MailjetSocketTimeoutException;
-import data.treatment.CampaignSortedByMonth;
-import data.treatment.CampaignSortedByYear;
-import data.treatment.GetDate;
-import dma.restconnexion.InfoConnexionClient;
-import exception.MyException;
-import mailjet.Campaign;
-import mailjet.Client;
-import mailjet.api.ApiCampaign;
-import mailjet.api.ApiCampaignStatistic;
-import mailjet.api.ApiClient;
-import mailjet.api.MailJetDAO;
-import mailjet.details.per.date.YearData;
-import org.springframework.beans.factory.annotation.Autowired;
+import dma.restconnexion.jwtsecurity.model.UserInfosConnexion;
+import dma.restconnexion.hub.HubCall;
+import dma.restconnexion.jwtsecurity.model.JwtAuthenticationToken;
+import dma.restconnexion.jwtsecurity.model.JwtUser;
+import dma.restconnexion.jwtsecurity.security.JwtGenerator;
+import logger.MyLogger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TreeMap;
+import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class LoginController{
-
-/*tant que toutes les methodes de l'api Mailjet vont être implémentées dans mailJetDAO, pour chaque nouvelles
-	routes je n'aurais plus qu'à appeler un mailJetDAO.maMethode().
-*/
-	// Instantiated at null for jwtsecurity 
-	private static MailJetDAO mailJetDAO = null;
-
-	//Implementation of @Autowired to avoid many other configuration in another files 
-	@Autowired public LoginController() {
-
+	
+	private JwtGenerator jwtGenerator;
+	private static List<UserInfosConnexion> maList = new ArrayList<>();
+	
+	public LoginController(JwtGenerator jwtGenerator) {
+		this.jwtGenerator = jwtGenerator;
 	}
 	
-	private String toJson(Object obj) {
-		return new Gson().toJson(obj);
-	}
-
-	private ApiCampaignStatistic findStatisticFromDate(ApiCampaignStatistic[] statistics, String subject) {
-		for (ApiCampaignStatistic statistic : statistics) {
-			if (statistic.CampaignSubject.compareTo(subject) == 0) { /* 0 means it's equal*/
-				return statistic;
+	@RequestMapping(value = "/auth/login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> generateUserToken(@RequestBody final JwtUser jwtUser) throws Exception {
+		MyLogger logger = new MyLogger();
+		UserInfosConnexion currentUser = new UserInfosConnexion();
+		HubCall hubCall = new HubCall();
+		
+		logger.infoLevel("User login recovered : " + jwtUser.getLogin());
+		logger.infoLevel("User password recovered : " + jwtUser.getPassword());
+		
+		try {
+			if (UserInfosConnexion.listUserConnected != null)
+			{
+				currentUser.setTokenJWT(jwtGenerator.generate());
+				hubCall.hubConfirmationConnexion(jwtUser, currentUser);
+				for (int i = 0; i < UserInfosConnexion.listUserConnected.size(); i++)
+				{
+					if (!currentUser.getTokenJWT().equals(UserInfosConnexion.listUserConnected.get(i).getTokenJWT()))
+					{
+						if (i == UserInfosConnexion.listUserConnected.size() - 1)
+						{
+							LoginController.maList.add(currentUser);
+							UserInfosConnexion.setListUserConnected(maList);
+							break;
+						}
+						else
+							continue;	
+					}
+					else
+					{
+						UserInfosConnexion.listUserConnected.remove(i);
+						i--;
+					}
+				}
+				if (UserInfosConnexion.listUserConnected.isEmpty())
+				{
+					LoginController.maList.add(currentUser);
+					UserInfosConnexion.setListUserConnected(maList);
+				}
 			}
-		}
-		return null;
-	}
-	
-/* ------------------------------------------------------------------------------------------------------/
-	While we don't go through this route, we don't have access to another routes/requests.
-	Moreover, this one send back a json with the Name & ID values
-*/
-	@CrossOrigin(origins = "*", allowedHeaders = "*")//http://192.068.1.110:3003
-	@RequestMapping(value = "/auth/login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE) @ResponseStatus(value = HttpStatus.OK)
-
-//Here, Spring instantiate my InfoConnexionClient class to get access to the private & public keys attributes
-	public @ResponseBody String login(@RequestBody InfoConnexionClient infoConnexionClient)
-			throws MailjetSocketTimeoutException, MailjetException {
-
-/* We instantiate a MailjetDAO in order to make a global access point to the connexion information */
-		mailJetDAO = new MailJetDAO(infoConnexionClient);
-		ApiClient apiClient = mailJetDAO.getClient();
-
-		System.out.println(infoConnexionClient.getPubKey());
-		System.out.println(infoConnexionClient.getPrivKey());
-
-		return toJson(new Client(apiClient));
-	}
-	
-/* ------------------------------------------------------------------------------------------------------/
-	This route is the core of the Sorted Data Page. It send back to the front all data sorted by month and 
-	years.
-*/
-	@CrossOrigin(origins = "*", allowedHeaders = "*")
-	@RequestMapping(value = "/campaign-statistics", method = RequestMethod.GET)
-	@ResponseStatus(value = HttpStatus.OK)
-	public @ResponseBody String listCampaignByMonth()
-			throws MailjetSocketTimeoutException, MailjetException, ParseException {
-		if (mailJetDAO == null) {
-			MyException myException = new MyException();
-			return myException.badRequest();
-		}
-
-		DateFormat sdt = new SimpleDateFormat("yyyy" + "-01-01'T'00:00:00");
-		String dateAsString = mailJetDAO.dateForFilter();
-		
-		Date dateYear = sdt.parse(dateAsString);
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(dateYear);
-		
-		ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignsForAYear(cal.get(Calendar.YEAR));
-		if (apiCampaigns.length == 0) //i check to prevent IndexOutOfboundException when we will be the 01/01/new year and any campaign were sent yet.
-		{
-			MyException myException = new MyException();
-			return myException.anyDataException();
-		}
-		ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignsStatisticsForAYear(cal.get(Calendar.YEAR));
-
-		ArrayList<Campaign> campaigns = new ArrayList<>();
-		YearData yearData = new YearData();
-		for (ApiCampaign apiCampaign : apiCampaigns) {
-			Campaign campaign = new Campaign(apiCampaign);
-			ApiCampaignStatistic statistic = findStatisticFromDate(apiStatistics, campaign.Subject);
-
-			if (statistic != null) {
-				campaign.setProcessedCount(statistic.ProcessedCount);
-				campaign.setDeliveredCount(statistic.DeliveredCount);
+			else
+			{
+				currentUser.setTokenJWT(jwtGenerator.generate());
+				hubCall.hubConfirmationConnexion(jwtUser, currentUser);
+				LoginController.maList.add(currentUser);
+				UserInfosConnexion.setListUserConnected(maList);
 			}
-			campaigns.add(campaign);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
-		CampaignSortedByMonth sortedByMonth = new CampaignSortedByMonth();
-		TreeMap<Integer, ArrayList<Campaign>> yearMap;
-		yearMap = sortedByMonth.getMapCampaign(campaigns);
-
-		return toJson(new CampaignSortedByYear().getMyListYears(yearMap, yearData));
+		
+		logger.infoLevel("Number of user connected at the same time : " + UserInfosConnexion.getListUserConnected().size());
+		logger.infoLevel("Token recovered : " + currentUser.getTokenJWT());
+		
+		return new ResponseEntity<>(new JwtAuthenticationToken(currentUser.getTokenJWT()), HttpStatus.OK);
 	}
-	
-/* ------------------------------------------------------------------------------------------------------/
-	This one will be use to avoid the 1000 filter limitation. We will use some post to send back data
-	with the exact date that the user want.
-*/
-	@CrossOrigin(origins = "*", allowedHeaders = "*")
-	@RequestMapping(value = "/campaign-statistics", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	@ResponseStatus(value = HttpStatus.OK)
-	public @ResponseBody String listCampaignByMonth(@RequestBody GetDate pDate)
-			throws MailjetSocketTimeoutException, MailjetException, ParseException {
-		if(mailJetDAO == null) {
-			MyException myException = new MyException();
-			return myException.badRequest();
-		}
-		
-		DateFormat sdt = new SimpleDateFormat("yyyy" + "-01-01'T'00:00:00");
-		String dateAsString = pDate.getDate();
-		
-		Date dateYear = sdt.parse(dateAsString);
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(dateYear);
-				
-		ApiCampaign[] apiCampaigns = mailJetDAO.getCampaignsForAYear(cal.get(Calendar.YEAR));
-		// A break si c'est null au lieu de renvoyer un jsoin avec un message.
-		//sinon j'execute le reste des traitements.
-		if (apiCampaigns.length == 0)
-		{
-			MyException myException = new MyException();
-			return myException.anyDataException();
-		}
-		ApiCampaignStatistic[] apiStatistics = mailJetDAO.getCampaignsStatisticsForAYear(cal.get(Calendar.YEAR));
-		
-		ArrayList<Campaign> campaigns = new ArrayList<>();
-		YearData yearData = new YearData();
-		
-		for (ApiCampaign apiCampaign : apiCampaigns)
-		{
-			Campaign campaign = new Campaign(apiCampaign);
-			ApiCampaignStatistic statistic = findStatisticFromDate(apiStatistics, campaign.Subject);
-
-			if (statistic != null) {
-				campaign.setProcessedCount(statistic.ProcessedCount);
-				campaign.setDeliveredCount(statistic.DeliveredCount);
-			}
-			campaigns.add(campaign);
-		}
-
-		CampaignSortedByMonth sortedByMonth = new CampaignSortedByMonth();
-		TreeMap<Integer, ArrayList<Campaign>> yearMap;
-		yearMap = sortedByMonth.getMapCampaign(campaigns);
-		
-		return toJson(new CampaignSortedByYear().getMyListYears(yearMap, yearData));
-	}
- }
+}

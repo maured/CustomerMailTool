@@ -7,15 +7,14 @@ import java.util.ArrayList;
 public class GetTotalMailSend{
 	public void calculMailSendByMonth(ArrayList<MonthData> arrayOfMonths)
 	{
-		/*Gestion d'erreur : attention si il n'y a pas de PC à compter gerer la valeur null*/
 		for (MonthData month : arrayOfMonths) {
 			int i = 0;
 			int totalMailSend = 0;
 			for (Campaign campaign : month.campaignList) {
 				int campaignSize = month.campaignList.size();
 				int mailSendInCampaign=0;
-				if (campaign!=null) {
-					if (campaign.ProcessedCount!=null) {
+				if (campaign != null) {
+					if (campaign.ProcessedCount != null) {
 						mailSendInCampaign = campaign.ProcessedCount;
 					}	
 				} 

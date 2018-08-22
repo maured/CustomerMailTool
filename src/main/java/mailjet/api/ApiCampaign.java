@@ -13,5 +13,8 @@ public class ApiCampaign {
 
     public Date SendStartAt;
     
-    public Integer SpamassScore;
+    public float SpamassScore;
+
+    public ApiCampaign() {
+    }
 }

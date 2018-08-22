@@ -9,8 +9,9 @@ import com.mailjet.client.errors.MailjetSocketTimeoutException;
 import com.mailjet.client.resource.Apikey;
 import com.mailjet.client.resource.Campaign;
 import com.mailjet.client.resource.Campaignstatistics;
-import dma.restconnexion.InfoConnexionClient;
+import dma.restconnexion.jwtsecurity.model.UserInfosConnexion;
 import exception.MyException;
+import logger.MyLogger;
 import org.json.JSONArray;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -28,27 +29,25 @@ public class MailJetDAO{
 	{
 		DateFormat sdt = new SimpleDateFormat("yyyy" + "-01-01'T'00:00:00");
 		Date today = Calendar.getInstance().getTime();
-		
 		String myDateFormat = sdt.format(today);
 
 		return myDateFormat;
 	}
-	
 /*	 
 	While a mailjet DAO instance is running (JVM running) information of connexion will be stocked
 	in my connexion object
 */
-	private InfoConnexionClient connexion;
-
-	public MailJetDAO(InfoConnexionClient infoConnexionClient) {
-		this.connexion = infoConnexionClient;
+	private UserInfosConnexion connexion;
+	
+	public MailJetDAO(UserInfosConnexion userInfosConnexion) {
+		this.connexion = userInfosConnexion;
 	}
 	
 	/*For the connexion */
 	private MailjetClient getAccessToSpecificClient() {
-		String pubKey = this.connexion.getPubKey();
-		String privKey = this.connexion.getPrivKey();
-
+		String pubKey = this.connexion.getPublicK();
+		String privKey = this.connexion.getPrivateK();
+		
 		return new MailjetClient(pubKey, privKey);
 	}
 
@@ -57,9 +56,7 @@ public class MailJetDAO{
 		MailjetClient client = getAccessToSpecificClient();
 		MailjetRequest request = new MailjetRequest(Apikey.resource);
 		MailjetResponse response = client.get(request);
-		
 		JSONArray clientData = response.getData();
-
 		ApiClient[] apiClient = new Gson().fromJson(String.valueOf(clientData), ApiClient[].class);
 		
 		return apiClient[0];
@@ -74,21 +71,26 @@ public class MailJetDAO{
 		DateFormat sdt = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
 		String myDateFormat = sdt.format(date);
 		
+		//i do my connexion thank's to the keys and this method.
 		MailjetClient client = getAccessToSpecificClient();
+		//i do my request for Campaign resources
 		MailjetRequest request = new MailjetRequest(Campaign.resource)
-				.filter(Campaign.FROMTS, myDateFormat)
-				.filter(Campaign.LIMIT, "0");
+				.filter(Campaign.FROMTS, myDateFormat) //(From timeStamp)
+				.filter(Campaign.LIMIT, "0");// 0 = ALL
 		MailjetResponse response = client.get(request);
 
 		JSONArray clientData = response.getData();
-		MyException myException = new MyException();
-		myException.mailjetAttributEmpty(clientData, "SendStartAt");
-
-		return new Gson().fromJson(String.valueOf((clientData)), ApiCampaign[].class);
+		
+		MyException myException = new MyException(); // i have to change the name but :
+		//This line is sorting all campaign in deleting all campaign CREATED but not SENT
+		JSONArray clientDataClean = myException.mailjetAttributEmpty(clientData, "SendStartAt");
+		
+		return new Gson().fromJson(String.valueOf((clientDataClean)), ApiCampaign[].class);
 	}
 	
-	public ApiCampaign[]  getCampaignsForAYear(int year) throws MailjetSocketTimeoutException, MailjetException {
-		
+	public ApiCampaign[]  getCampaignsForAYear(int year) throws MailjetSocketTimeoutException, MailjetException
+	{
+		MyLogger logger = new MyLogger();	
 		ArrayList<ApiCampaign> arrApiCampaignForAYear = new ArrayList<>();
 		//We must call MJ : from a date and we stop when we change year.
 		
@@ -123,7 +125,7 @@ public class MailJetDAO{
 				fromDate = tmpResultFromMJ[tmpResultFromMJ.length - 1].SendStartAt;
 				
 				Calendar yearToCompare = Calendar.getInstance();
-				yearToCompare.setTime(tmpResultFromMJ[0].SendStartAt); // checker sur la premiere campagne
+				yearToCompare.setTime(tmpResultFromMJ[0].SendStartAt); // check on the first campaign
 				int yearOfFirstSendingDate = yearToCompare.get(Calendar.YEAR);
 				
 				if (year < yearOfFirstSendingDate)
@@ -146,7 +148,7 @@ public class MailJetDAO{
 		else
 		{
 			finalResult = arrApiCampaignForAYear.toArray(finalResult);
-			System.out.println("fist:" + arrApiCampaignForAYear.get(0).SendStartAt + "    last:"+arrApiCampaignForAYear.get(arrApiCampaignForAYear.size()-1).SendStartAt);
+			logger.infoLevel("fist:" + arrApiCampaignForAYear.get(0).SendStartAt + "    last:" + arrApiCampaignForAYear.get(arrApiCampaignForAYear.size()-1).SendStartAt);
 			return finalResult;	
 		}
 	}
@@ -165,13 +167,14 @@ public class MailJetDAO{
 
 		JSONArray clientData = response.getData();
 		MyException myException = new MyException();
-		myException.mailjetAttributEmpty(clientData, "CampaignSendStartAt");
-
-		return new Gson().fromJson(String.valueOf((clientData)), ApiCampaignStatistic[].class);
+		
+		JSONArray clientDataClean = myException.mailjetAttributEmpty(clientData, "CampaignSendStartAt");
+		return new Gson().fromJson(String.valueOf((clientDataClean)), ApiCampaignStatistic[].class);
 	}
 
-	public ApiCampaignStatistic[] getCampaignsStatisticsForAYear(int year) throws MailjetSocketTimeoutException, MailjetException {
-
+	public ApiCampaignStatistic[] getCampaignsStatisticsForAYear(int year) throws MailjetSocketTimeoutException, MailjetException
+	{
+		MyLogger logger = new MyLogger();
 		ArrayList<ApiCampaignStatistic> arrApiCampaignForAYear = new ArrayList<>();
 		//We must call MJ : from a date and we stop when we change year.
 
@@ -225,7 +228,7 @@ public class MailJetDAO{
 		}
 		ApiCampaignStatistic[] finalResult = new ApiCampaignStatistic[arrApiCampaignForAYear.size()];
 		finalResult = arrApiCampaignForAYear.toArray(finalResult);
-		System.out.println("fist:" + arrApiCampaignForAYear.get(0).CampaignSendStartAt+ "    last:"+arrApiCampaignForAYear.get(arrApiCampaignForAYear.size()-1).CampaignSendStartAt);
+		logger.infoLevel("fist:" + arrApiCampaignForAYear.get(0).CampaignSendStartAt + "    last:" + arrApiCampaignForAYear.get(arrApiCampaignForAYear.size()-1).CampaignSendStartAt);
 		return finalResult;
 	}
 }
